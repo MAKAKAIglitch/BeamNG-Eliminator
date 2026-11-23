@@ -12,6 +12,12 @@ local COUNTDOWN_SECONDS = 10
 local match_sequence = 0
 local countdown_remaining = nil
 local countdown_timer_running = false
+local event_sequence = 0
+
+local function next_event_id()
+    event_sequence = event_sequence + 1
+    return "server-event:" .. tostring(event_sequence)
+end
 
 local function cancel_countdown()
     if countdown_timer_running and MP and MP.CancelEventTimer then
@@ -52,6 +58,7 @@ local function broadcast_snapshot()
     local envelope = {
         type = "match.snapshot",
         version = PROTOCOL_VERSION,
+        request_id = next_event_id(),
         payload = MatchManager.snapshot()
     }
     local ok, err = send_event(-1, SNAPSHOT_EVENT, envelope)
@@ -65,6 +72,7 @@ local function send_countdown(remaining)
     local envelope = {
         type = "match.countdown",
         version = PROTOCOL_VERSION,
+        request_id = next_event_id(),
         payload = {
             remaining_seconds = remaining,
             phase = MatchManager.snapshot().phase
