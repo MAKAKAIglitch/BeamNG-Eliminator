@@ -75,6 +75,7 @@ Offline checks now cover:
 - Valid `app.json` and directive/DOM element naming consistency.
 - Presence of the Lua-to-UI event bridge and initial snapshot request.
 - Rendering loops for the 20 competitor slots and spectator list.
-- JavaScript syntax via `node --check` in CI and when Node.js is available to local build scripts.
+- JavaScript syntax via `node --check` and mocked Angular scope/state updates via `tests/ui/test_lobby_app.js`.
+- GE extension event registration, envelope validation, UI event forwarding and unload cleanup via `tests/lua/test_client_extension.lua` (Lua 5.1).
 
 These checks do not prove that the UI app appears in BeamNG's app selector, that BeamMP distributes the UI files correctly, or that the event bridge works in a live game. Those require a client ZIP installed through a test BeamMP server and an in-game smoke test.
