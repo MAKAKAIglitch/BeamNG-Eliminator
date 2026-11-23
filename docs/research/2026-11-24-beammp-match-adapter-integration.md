@@ -56,7 +56,7 @@ Both handlers reject invalid JSON, unexpected envelope types and unsupported pro
 
 - A disconnected human retains their existing competitor slot and active match identity.
 - The snapshot exposes connection_status = disconnected.
-- A lobby cannot be locked while a human competitor is disconnected.
+- A lobby cannot be locked while a human competitor is disconnected.\n- If a human disconnects after roster lock but before the countdown finishes, the adapter cancels the timer, clears only generated AI placeholders and reopens the lobby.
 - Reconnection using the same runtime player ID restores the existing slot.
 - BeamMP runtime IDs are ephemeral. This prototype does not match a reconnect that receives a different runtime ID.
 - There is no timed grace-period expiration or AI takeover yet.
