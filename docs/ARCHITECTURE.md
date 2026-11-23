@@ -73,7 +73,7 @@ Implemented transitions and operations:
 - `final_showdown → finished`: accept a winner only if that competitor is still active.
 - Running phases can be stopped with a recorded reason; a new lobby can then be created.
 
-The module returns snapshots rather than exposing its internal roster tables. Late joins in starting, active or final-showdown phases are spectators. The module currently exposes functions for a future event/command adapter; it does not yet register BeamMP player events, create a timer, send protocol messages, or persist results. Those integrations require their own tested steps.
+Numeric BeamMP runtime player IDs are normalized into match-scoped string competitor IDs; these IDs are not durable account/profile identifiers. The module returns snapshots rather than exposing its internal roster tables. Late joins in starting, active or final-showdown phases are spectators. The module currently exposes functions for a future event/command adapter; it does not yet register BeamMP player events, create a timer, send protocol messages, or persist results. Those integrations require their own tested steps.
 
 Pure-Lua lifecycle tests live in `tests/lua/test_match_manager.lua` and are included in CI and local build checks when Lua 5.3 is available.
 
