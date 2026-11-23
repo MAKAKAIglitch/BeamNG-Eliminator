@@ -6,6 +6,7 @@ These checks do not replace an in-game BeamNG/BeamMP integration test.
 
 import json
 import pathlib
+import struct
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -104,6 +105,9 @@ class ProjectStructureTests(unittest.TestCase):
     def test_lobby_ui_state_test_is_present(self):
         self.assertTrue((ROOT / "tests/ui/test_lobby_app.js").is_file())
 
+    def test_client_extension_bridge_test_is_present(self):
+        self.assertTrue((ROOT / "tests/lua/test_client_extension.lua").is_file())
+
     def test_lobby_ui_app_is_registered_and_complete(self):
         app_root = ROOT / "client-mod/ui/modules/apps/EliminatorLobby"
         for filename in ("app.json", "app.js", "app.html", "app.css", "app.png"):
@@ -126,6 +130,10 @@ class ProjectStructureTests(unittest.TestCase):
         self.assertIn("ng-repeat=\"slot in slots", markup)
         self.assertIn("ng-repeat=\"spectator in snapshot.spectators", markup)
         self.assertIn("i <= 20", script)
+
+        icon = (app_root / "app.png").read_bytes()
+        self.assertEqual(icon[:8], b"\\x89PNG\\r\\n\\x1a\\n")
+        self.assertEqual(struct.unpack(">II", icon[16:24]), (250, 120))
 
 
 if __name__ == "__main__":
