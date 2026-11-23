@@ -68,7 +68,7 @@ expect(registered.EliminatorCountdownTick == "onEliminatorCountdownTick",
     "countdown timer event should be registered")
 
 local before_invalid_snapshot_request = #sent_events
-onEliminatorSnapshotRequest(7, "not-a-valid-request")
+onEliminatorSnapshotRequest(9, "not-a-valid-request")
 expect(#sent_events == before_invalid_snapshot_request,
     "invalid snapshot request payload must be ignored")
 onEliminatorSnapshotRequest(7,
