@@ -123,7 +123,7 @@ chmod +x tools/build.sh
 ./tools/build.sh
 ```
 
-The scripts run the offline tests and create:
+The scripts run Python checks and, when Lua 5.3 is installed, the competitor-roster Lua tests. They then create:
 - `dist/Resources/Server/Eliminator/` — server plugin files.
 - `dist/Eliminator-client.zip` — client mod package.
 
