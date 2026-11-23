@@ -45,7 +45,7 @@ A match has 20 stable competitor slots. A slot is an identity in the match, not 
 
 - Every active match has at most 20 competitor slots.
 - Once the match countdown locks the roster, slot ownership is immutable except for an explicit disconnect takeover policy.
-- A new player joining during an active match must never cause an AI competitor to be deleted, despawned, or replaced.
+- A new player joining at any time after AI slots have been created must never cause an AI competitor to be deleted, despawned, or replaced.
 - An AI competitor leaves the active roster only after a server-confirmed elimination or match termination.
 - A late joiner becomes a spectator/queued player and can join the next match.
 - The server owns slot assignment and broadcasts roster changes with stable competitor IDs.
@@ -53,7 +53,7 @@ A match has 20 stable competitor slots. A slot is an identity in the match, not 
 
 ### Lobby fill
 
-Before roster lock, the server may fill vacant slots with humans and then AI. The exact fill deadline and minimum human count are configuration values. Once locked, the roster is not rebalanced when more humans connect.
+During the lobby, human players claim available competitor slots first. AI competitors are created only when the server locks the roster and fills every remaining slot up to 20. This avoids creating bots early and then deleting them to make room for later lobby arrivals. Once the roster is locked and AI competitors exist, no player connection—whether during countdown or an active match—may remove or replace a bot. The exact lobby deadline and minimum human count are configuration values.
 
 Example: a match starts with 5 humans and 15 AI. If 3 more players connect after the start, the match remains 5 humans + 15 AI; the 3 newcomers spectate or queue for the next match.
 
