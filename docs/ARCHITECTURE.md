@@ -7,7 +7,7 @@
 | `server-plugin/` | BeamMP Server Lua | Match state, roster, validation and results |
 | `client-mod/` | BeamNG.drive Lua/UI | Input, presentation, vehicle and AI prototypes |
 | `shared/` | Source/configuration | Versioned protocol and common rules |
-| `tests/` | Python 3 and Lua 5.3 | Offline structural/configuration checks and pure-Lua roster logic tests |
+| `tests/` | Python 3 and Lua 5.3 | Offline structural/configuration checks, pure-Lua logic tests and mocked BeamMP adapter tests |
 
 ## Loading and packaging
 
