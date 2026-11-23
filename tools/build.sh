@@ -17,6 +17,7 @@ python3 -m unittest discover -s tests -v
 
 if command -v lua5.3 >/dev/null 2>&1; then
   lua5.3 tests/lua/test_roster_manager.lua
+  lua5.3 tests/lua/test_match_manager.lua
 else
   echo "NOTE: lua5.3 not found; Lua roster tests are skipped locally."
 fi
