@@ -15,6 +15,12 @@ command -v zip >/dev/null 2>&1 || {
 
 python3 -m unittest discover -s tests -v
 
+if command -v lua5.3 >/dev/null 2>&1; then
+  lua5.3 tests/lua/test_roster_manager.lua
+else
+  echo "NOTE: lua5.3 not found; Lua roster tests are skipped locally."
+fi
+
 rm -rf dist
 mkdir -p "dist/Resources/Server/Eliminator"
 cp -R server-plugin/. "dist/Resources/Server/Eliminator/"
