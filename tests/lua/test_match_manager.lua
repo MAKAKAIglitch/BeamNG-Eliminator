@@ -135,6 +135,37 @@ local function test_transition_guards_and_invalid_config()
         "finish must not bypass final showdown")
 end
 
+local function test_numeric_beammp_player_ids()
+    MatchManager.initialize({
+        competitor_limit = 2,
+        minimum_human_players = 1,
+        fill_open_slots_with_ai = true
+    })
+    MatchManager.create_lobby("match:test:numeric")
+
+    local joined, result = MatchManager.add_player(42, "Numeric Player")
+    expect(joined and result.role == "competitor",
+        "numeric BeamMP player ID should be accepted")
+    expect(result.competitor_id == "player:42",
+        "numeric player ID should be normalized to a match-scoped ID")
+
+    local locked, lock_result = MatchManager.lock_roster()
+    expect(locked and lock_result.ai_added == 1,
+        "numeric human player should count toward minimum and AI fill")
+    MatchManager.start_match()
+
+    local late, late_result = MatchManager.add_player(99, "Late Numeric Player")
+    expect(late and late_result.role == "spectator",
+        "numeric late joiner should become spectator")
+    expect(late_result.competitor_id == "player:99",
+        "late numeric ID should be normalized")
+    local snapshot = MatchManager.snapshot()
+    expect(snapshot.active_competitors == 2,
+        "numeric late join must not replace the active AI")
+    expect(snapshot.competitors[2].competitor_id == "ai:2",
+        "AI identity must remain unchanged after numeric late join")
+end
+
 local function test_stop_and_restart()
     MatchManager.initialize()
     MatchManager.create_lobby("match:test:003")
@@ -154,6 +185,7 @@ end
 
 test_full_lifecycle_and_late_join()
 test_transition_guards_and_invalid_config()
+test_numeric_beammp_player_ids()
 test_stop_and_restart()
 
 print("PASS: match lifecycle (lobby, lock, countdown, active, showdown, results, late joins)")
