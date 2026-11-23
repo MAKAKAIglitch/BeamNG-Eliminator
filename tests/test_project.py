@@ -132,7 +132,7 @@ class ProjectStructureTests(unittest.TestCase):
         self.assertIn("i <= 20", script)
 
         icon = (app_root / "app.png").read_bytes()
-        self.assertEqual(icon[:8], b"\\x89PNG\\r\\n\\x1a\\n")
+        self.assertEqual(icon[:8], bytes((137, 80, 78, 71, 13, 10, 26, 10)))
         self.assertEqual(struct.unpack(">II", icon[16:24]), (250, 120))
 
 
