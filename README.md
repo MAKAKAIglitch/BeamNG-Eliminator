@@ -6,7 +6,7 @@ BeamNG Eliminator is a planned multiplayer game mode inspired by the open-world 
 
 The project is intended to support **exactly 20 active competitors per match**, combining human players with AI-controlled opponents.
 
-> **Project status:** Concept and planning. The features below describe the intended design; they are not implemented or verified yet.
+> **Project status:** Architecture foundation (v0.1.0). The repository now contains an initial server/client scaffold and offline checks, but it is not a playable game mode. Gameplay features listed below remain planned unless explicitly marked otherwise.
 
 ## Core concept
 
@@ -20,11 +20,29 @@ The project is intended to support **exactly 20 active competitors per match**, 
 - The match progresses toward a final showdown.
 - One competitor wins the match.
 
-## Match flow
+## Current release
 
-### 1. Lobby and 20 competitor slots
+**[v0.1.0 — Architecture Foundation](docs/release/0.1.0.md)**
 
-When a player joins, they enter the match lobby. The match manager maintains 20 active competitor slots.
+Included:
+- Initial `server-plugin/`, `client-mod/` and `shared/` structure.
+- Minimal Lua entry points and subsystem boundaries.
+- Draft versioned network message envelope.
+- Initial match constants and example server configuration.
+- Offline Python structural/configuration tests.
+- Local Windows and Linux packaging scripts.
+
+Not implemented yet:
+- Playable lobby or spawn selection.
+- BeamMP gameplay event handlers.
+- Synchronized AI vehicles or AI driving.
+- Vehicle drops, head-to-head races, arena contraction or final showdown.
+
+## Match design
+
+### 20 competitor slots
+
+The target is 20 active competitor slots. Human players occupy available slots and AI is intended to fill the remaining slots.
 
 | Human players | AI opponents | Total |
 |---:|---:|---:|
@@ -34,98 +52,20 @@ When a player joins, they enter the match lobby. The match manager maintains 20 
 | 15 | 5 | 20 |
 | 20 | 0 | 20 |
 
-AI fills the slots that are not occupied by human players. If a human player disconnects, the match manager can replace that competitor with AI according to the current match state. If a human joins while an AI slot is available, the system can convert that slot to a human competitor.
-
 The exact rules for late joining, eliminated players, and spectator mode will be finalized during implementation. The 20-slot target refers to active competitors, not necessarily the number of connected human clients.
 
-### 2. Choose a spawn location
+### Intended match flow
 
-Before the match starts, players see an in-game map and select their preferred spawn area.
+1. Lobby and competitor assignment.
+2. Player spawn-area selection.
+3. Open-world exploration.
+4. Vehicle drops and tier progression.
+5. Horn-triggered head-to-head challenges.
+6. AI competitors searching, upgrading and racing.
+7. Elimination and arena progression.
+8. Final Showdown and winner screen.
 
-Potential areas include:
-
-- City districts
-- Mountain roads
-- Forests
-- Desert areas
-- Industrial zones
-- Countryside and highways
-
-The spawn system distributes competitors across the map to avoid placing everyone in one location. AI opponents receive spawn locations automatically.
-
-After selection, the player's vehicle is placed at the chosen location. A countdown begins once the match is ready.
-
-### 3. Explore the world
-
-At the start, competitors receive vehicles from the entry-level class. They can then:
-
-- Drive freely around the map.
-- Search for vehicle drops.
-- Look for rivals to challenge.
-- Avoid stronger competitors.
-- Choose routes based on terrain and vehicle capabilities.
-
-### 4. Vehicle drops and upgrades
-
-Vehicle drops are special locations containing replacement vehicles. They are a central progression mechanic.
-
-A drop may be marked by:
-
-- A visible beacon or light column.
-- Smoke or another world-space effect.
-- A map marker.
-- A vehicle tier indicator.
-
-A competitor drives to a drop and interacts with it to claim the vehicle. The current vehicle is then replaced with the awarded vehicle.
-
-The drop system is intended to include:
-
-- A configurable vehicle catalogue.
-- Vehicle tiers and progression rules.
-- Spawn locations and drop timing.
-- A clear visual marker for available drops.
-- Server-side ownership and pickup validation.
-- AI logic for locating and collecting drops.
-
-A drop must have a single authoritative claim: two competitors must not be able to receive the same vehicle from one drop.
-
-### 5. Head-to-head challenges
-
-A player can approach another competitor and use the horn to issue a challenge.
-
-Intended flow:
-
-1. The game detects a valid nearby challenge.
-2. The other competitor accepts or declines, subject to match rules.
-3. The match system selects a finish point.
-4. Both competitors receive the route or destination marker.
-5. A countdown starts the race.
-6. The first competitor to reach the finish wins.
-7. The winner receives the configured reward, such as an upgrade to a higher vehicle tier.
-
-Head-to-head races should support human-versus-human, human-versus-AI, and AI-versus-AI matchups.
-
-### 6. AI competitors
-
-AI opponents should be active competitors rather than decorative traffic.
-
-Planned behaviours:
-
-- Navigate roads and off-road areas.
-- Explore the map.
-- Search for vehicle drops.
-- Collect better vehicles.
-- Detect and challenge nearby competitors.
-- Accept and participate in head-to-head races.
-- Progress through the match and be eliminated under the same rules as human competitors.
-
-The goal is to keep matches populated and interesting even when only a few human players are online.
-
-### 7. Final showdown
-
-As the match progresses, the active competitor count decreases. The final stage brings the remaining competitors into a decisive race.
-
-The final rules, route selection, and elimination conditions will be tuned during development. The intended result is one clear match winner.
+These are design goals, not currently implemented gameplay.
 
 ## Vehicle progression
 
@@ -146,48 +86,53 @@ Vehicles are planned to be grouped into ten tiers, from slower entry-level cars 
 
 The actual vehicle list, configurations, balancing, and tier progression will be defined separately. The initial implementation should prioritize vehicles included with BeamNG.drive to reduce dependencies on third-party vehicle mods.
 
-## Technical direction
+## Architecture
 
-### Planned technologies
+See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the initial architecture and AI synchronization milestone.
 
-- **BeamNG.drive** — vehicle physics, world simulation, AI and in-game Lua extensions.
-- **BeamMP** — multiplayer connectivity and synchronization.
-- **Lua** — gameplay logic, client-side UI, vehicle interactions and server scripts.
-- **BeamMP Server Lua API** — server-side match state and validation.
+- **`server-plugin/`** — authoritative match state, competitor roster and validation.
+- **`client-mod/`** — BeamNG extension, input, UI, world presentation and AI prototypes.
+- **`shared/`** — versioned network protocol and common game rules.
+- **`tests/`** — offline structural and configuration checks.
+- **`tools/`** — local packaging scripts; no scheduled GitHub Actions are required.
 
-### High-level architecture
+The server owns official match outcomes. Client-side vehicle physics and AI synchronization are separate engineering challenges. The first AI milestone is one controlled AI vehicle observed consistently by two clients; scaling to 20 must wait until that is proven.
 
-**Server-side match manager**
-- Maintains match state and competitor slots.
-- Tracks human players and AI competitors.
-- Controls match phases and elimination state.
-- Owns drop availability and pickup claims.
-- Validates challenge and race results.
-- Decides rewards and vehicle progression.
+## Build locally
 
-**Client-side gameplay**
-- Displays the spawn selection map and HUD.
-- Shows drop and destination markers.
-- Handles player interactions.
-- Sends gameplay requests to the server.
-- Displays challenges, countdowns and results.
+Requirements:
+- Python 3.
+- Windows: PowerShell (included with supported Windows versions).
+- Linux: `zip` command-line utility.
 
-**AI and vehicle synchronization**
-- Creates and controls NPC vehicles.
-- Implements navigation, drop-seeking and challenge behaviour.
-- Synchronizes NPC state so all participants see consistent opponents.
-- Handles AI ownership and recovery if the controlling client disconnects.
+Windows:
 
-The exact network authority model for AI vehicles is an important engineering task. BeamNG vehicle physics normally runs in game clients, so the project must test how AI control and vehicle state can be reliably shared through BeamMP. A possible prototype is to designate an AI controller client while keeping match decisions and rewards server-authoritative. This is a design option, not an established BeamMP feature.
+```bat
+tools\build.bat
+```
+
+Linux:
+
+```sh
+chmod +x tools/build.sh
+./tools/build.sh
+```
+
+The scripts run the offline tests and create:
+- `dist/Resources/Server/Eliminator/` — server plugin files.
+- `dist/Eliminator-client.zip` — client mod package.
+
+These checks do not verify BeamMP runtime compatibility or multiplayer synchronization. Those require a real test server and BeamNG clients.
 
 ## Development roadmap
 
 ### Phase 1 — Project foundation
-- [ ] Create the mod structure and BeamMP integration.
-- [ ] Implement match lifecycle and match states.
-- [ ] Add the 20-slot competitor manager.
-- [ ] Add AI slot filling and player join/leave handling.
-- [ ] Define server/client message contracts.
+- [x] Create the initial server/client/shared project layout.
+- [x] Add local packaging scripts and offline structural tests.
+- [x] Define a draft versioned message envelope.
+- [ ] Verify plugin loading on the target BeamMP Server build.
+- [ ] Verify client extension loading in BeamNG.drive.
+- [ ] Implement match lifecycle and the 20-slot competitor manager.
 
 ### Phase 2 — Spawn selection
 - [ ] Create the in-game map UI.
@@ -235,17 +180,10 @@ The exact network authority model for AI vehicles is an important engineering ta
 - **Incremental testing:** prove multiplayer vehicle synchronization with a small number of AI cars before scaling toward 20.
 - **Modular implementation:** keep match management, drops, races, AI and UI as separate systems.
 
-## Project goal
-
-Build a complete open-world automotive battle royale for BeamNG.drive: a persistent-feeling 20-competitor match with vehicle drops, progression, horn-triggered duels, AI rivals and a final race.
-
-**20 competitors. One map. Better cars. Head-to-head battles. One winner.**
-
 ## Inspiration and credits
 
 BeamNG Eliminator is an independent community project inspired by the general gameplay concept of open-world vehicle elimination modes. It is not affiliated with, endorsed by, or associated with BeamNG GmbH, BeamMP, or Playground Games / Xbox Game Studios. Forza Horizon and The Eliminator are referenced only to describe the gameplay inspiration.
 
-
 ## Research
 
-Browse the dated research notes in **[docs/research](docs/research/README.md)**. Each entry includes its date and a short description.
+Browse the dated technical investigations in **[docs/research](docs/research/README.md)**. Each entry includes its date and a short description.
