@@ -166,6 +166,38 @@ local function test_numeric_beammp_player_ids()
         "AI identity must remain unchanged after numeric late join")
 end
 
+local function test_disconnect_and_same_id_reconnect()
+    MatchManager.initialize({
+        competitor_limit = 3,
+        minimum_human_players = 1,
+        fill_open_slots_with_ai = true
+    })
+    MatchManager.create_lobby("match:test:disconnect")
+
+    local joined, result = MatchManager.add_player(77, "Reconnect Tester")
+    expect(joined and result.slot == 1, "human should join before disconnect")
+
+    local disconnected, disconnect_result = MatchManager.disconnect_player(77)
+    expect(disconnected and disconnect_result.role == "competitor",
+        "disconnect should retain the human competitor slot")
+    expect(MatchManager.snapshot().competitors[1].connection_status == "disconnected",
+        "disconnect status should be visible in snapshot")
+
+    local lock, lock_reason = MatchManager.lock_roster()
+    expect(not lock and lock_reason == "human_disconnected",
+        "lobby must not start while a human competitor is disconnected")
+
+    local rejoined, reconnect_result = MatchManager.add_player(77, "Reconnect Tester")
+    expect(rejoined and reconnect_result.reconnected,
+        "same runtime ID should reclaim its existing slot")
+    expect(reconnect_result.slot == 1, "reconnect must preserve the original slot")
+    expect(MatchManager.snapshot().competitors[1].connection_status == "connected",
+        "reconnect should restore connected status")
+
+    local locked = MatchManager.lock_roster()
+    expect(locked, "lobby should lock after player reconnects")
+end
+
 local function test_stop_and_restart()
     MatchManager.initialize()
     MatchManager.create_lobby("match:test:003")
@@ -186,6 +218,7 @@ end
 test_full_lifecycle_and_late_join()
 test_transition_guards_and_invalid_config()
 test_numeric_beammp_player_ids()
+test_disconnect_and_same_id_reconnect()
 test_stop_and_restart()
 
 print("PASS: match lifecycle (lobby, lock, countdown, active, showdown, results, late joins)")
