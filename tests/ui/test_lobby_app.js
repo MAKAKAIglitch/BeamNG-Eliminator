@@ -31,9 +31,10 @@ const source = fs.readFileSync(
 vm.runInThisContext(source, { filename: 'EliminatorLobby/app.js' });
 
 assert.equal(registeredDirective, 'eliminatorLobby');
-assert.equal(typeof registeredFactory, 'function');
+assert.ok(Array.isArray(registeredFactory));
+assert.equal(typeof registeredFactory[registeredFactory.length - 1], 'function');
 
-const definition = registeredFactory();
+const definition = registeredFactory[registeredFactory.length - 1]();
 const handlers = Object.create(null);
 const scope = {
   $on(eventName, callback) {
