@@ -84,6 +84,10 @@ class ProjectStructureTests(unittest.TestCase):
     def test_match_manager_module_is_present(self):
         self.assertTrue((ROOT / "server-plugin/modules/match_manager.lua").is_file())
 
+    def test_server_adapter_and_lua_test_are_present(self):
+        self.assertTrue((ROOT / "server-plugin/main.lua").is_file())
+        self.assertTrue((ROOT / "tests/lua/test_server_adapter.lua").is_file())
+
     def test_server_root_has_single_lua_entrypoint(self):
         root_lua = list((ROOT / "server-plugin").glob("*.lua"))
         self.assertEqual([path.name for path in root_lua], ["main.lua"])
