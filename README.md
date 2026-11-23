@@ -109,6 +109,7 @@ Requirements:
 - Python 3.
 - Windows: PowerShell (included with supported Windows versions).
 - Linux: `zip` command-line utility.
+- Optional for local Lua logic tests: Lua 5.3 (`lua5.3`). CI installs it automatically.
 
 Windows:
 
