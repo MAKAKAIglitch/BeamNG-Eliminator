@@ -21,6 +21,8 @@ Sources:
 - BeamNG.drive, [Creating an app](https://documentation.beamng.com/modding/ui/app_creation/).
 - BeamMP, [UI-App Creation](https://docs.beammp.com/beamng/dev/modding/ui-apps/).
 - BeamNG.drive, [Extensions](https://documentation.beamng.com/modding/programming/extensions/).
+- BeamMP, [Server Scripting Reference](https://docs.beammp.com/scripting/server/latest-server-reference/) — custom events via `MP.RegisterEvent`.
+- BeamMP, [Mod/In-Game Scripting Reference](https://docs.beammp.com/scripting/mod-reference/) — client `TriggerServerEvent`.
 
 ## 2. Project layout
 
@@ -54,7 +56,9 @@ The UI bridge uses one namespaced Angular event, `EliminatorLobbyUpdate`:
 
 - On a validated snapshot, Lua stores the new snapshot and triggers the UI event.
 - On a validated countdown event, Lua updates the countdown and triggers the same UI event.
-- When the UI app opens, it calls the exported `extensions.eliminator.requestLobbySnapshot()` function to receive the latest cached state immediately.
+- When the UI app opens or the GE extension loads, the client sends a fixed versioned `match.snapshot.request` message with `TriggerServerEvent`.
+- The server registers the custom event with `MP.RegisterEvent`, validates the exact request envelope, applies a per-player one-request-per-second limit and replies with the current snapshot only to that player.
+- The UI app also calls the exported `extensions.eliminator.requestLobbySnapshot()` function, which republishes cached state and asks the server for a fresh snapshot.
 - When the match leaves the `starting` phase, the client clears the displayed countdown.
 
 The UI renders exactly 20 slot positions from the server snapshot, with empty placeholders when a slot is absent. It shows player/AI/empty state, eliminated and disconnected state, spectators, match phase, roster lock state and countdown.
@@ -76,6 +80,7 @@ Offline checks now cover:
 - Presence of the Lua-to-UI event bridge and initial snapshot request.
 - Rendering loops for the 20 competitor slots and spectator list.
 - JavaScript syntax via `node --check` and mocked Angular scope/state updates via `tests/ui/test_lobby_app.js`.
-- GE extension event registration, envelope validation, UI event forwarding and unload cleanup via `tests/lua/test_client_extension.lua` (Lua 5.1).
+- GE extension event registration, envelope validation, server snapshot requests, UI event forwarding and unload cleanup via `tests/lua/test_client_extension.lua` (Lua 5.1).
+- Server custom-event registration, invalid request rejection and targeted snapshot responses via `tests/lua/test_server_adapter.lua` (Lua 5.3).
 
 These checks do not prove that the UI app appears in BeamNG's app selector, that BeamMP distributes the UI files correctly, or that the event bridge works in a live game. Those require a client ZIP installed through a test BeamMP server and an in-game smoke test.
