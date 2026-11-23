@@ -1,0 +1,15 @@
+{
+  "name": "BeamNG Eliminator Lobby",
+  "author": "BeamNG Eliminator Contributors",
+  "version": "0.1.0",
+  "description": "Displays the server-authoritative 20-slot match lobby and countdown.",
+  "directive": "eliminatorLobby",
+  "domElement": "<eliminator-lobby></eliminator-lobby>",
+  "css": {
+    "width": "560px",
+    "height": "680px",
+    "top": "80px",
+    "left": "80px"
+  },
+  "preserveAspectRatio": false
+}
