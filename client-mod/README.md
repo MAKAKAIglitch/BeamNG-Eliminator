@@ -1,6 +1,14 @@
 # BeamNG client mod
 
-This directory contains the client-side BeamNG.drive extension.
+This directory contains the client-side BeamNG.drive extension delivered by BeamMP as a ZIP file.
+
+## Loading
+
+- `scripts/modScript.lua` loads the `eliminator` GE extension.
+- `lua/ge/extensions/eliminator.lua` is the extension entry point.
+- `lua/ge/extensions/eliminator/` contains internal extension modules.
+
+The modScript follows the BeamMP client-mod creation guide. The extension itself is intentionally minimal in this foundation release.
 
 ## Responsibilities
 
@@ -10,8 +18,8 @@ This directory contains the client-side BeamNG.drive extension.
 - AI vehicle creation, navigation and control prototypes.
 - Rendering synchronized competitor state received from the server.
 
-The client mod is deliberately minimal in this first foundation release. No AI vehicle is spawned and no BeamMP event is registered yet. The exact extension lifecycle, vehicle-control APIs and multiplayer synchronization behaviour must be tested in BeamNG.drive with at least two connected clients.
+No AI vehicle is spawned and no BeamMP event is registered yet. Vehicle-control APIs and multiplayer synchronization must be tested in BeamNG.drive with at least two connected clients.
 
 ## Packaging
 
-The local build script packages this directory as a client ZIP. The ZIP preserves the directory layout under the BeamNG mod root (for example, `lua/ge/extensions/eliminator/`).
+The local build script packages the contents of this directory as `Eliminator-client.zip`. The ZIP preserves the BeamNG mod layout at its root, including `scripts/modScript.lua` and `lua/ge/extensions/eliminator.lua`.
