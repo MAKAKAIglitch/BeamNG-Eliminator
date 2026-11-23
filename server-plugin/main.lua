@@ -141,8 +141,7 @@ function onEliminatorPlayerJoin(player_id)
 end
 
 function onEliminatorSnapshotRequest(player_id, data)
-    if type(player_id) ~= "number" or player_id < 0
-        or type(data) ~= "string" or data ~= SNAPSHOT_REQUEST_DATA then
+    if type(player_id) ~= "number" or player_id < 0 then
         return
     end
 
@@ -152,6 +151,10 @@ function onEliminatorSnapshotRequest(player_id, data)
         return
     end
     snapshot_request_last_at[player_id] = now
+
+    if type(data) ~= "string" or data ~= SNAPSHOT_REQUEST_DATA then
+        return
+    end
 
     local envelope = {
         type = "match.snapshot",
