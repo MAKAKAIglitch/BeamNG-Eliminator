@@ -1,6 +1,6 @@
 {
   "protocol_version": 1,
-  "description": "Initial message envelope for BeamNG Eliminator. Message types are reserved until implemented and integration-tested.",
+  "description": "Version 1 server-to-client match snapshots and countdown events are implemented; other listed message types remain reserved until their handlers are implemented and integration-tested.",
   "envelope": {
     "type": "string",
     "version": "integer",
@@ -16,12 +16,15 @@
     "duel.request",
     "duel.response",
     "race.progress",
-    "match.result"
+    "match.result",
+    "match.countdown"
   ],
   "rules": [
     "The server validates all state-changing requests.",
     "Clients must reject unsupported protocol versions.",
     "Untrusted client payloads must be validated before use.",
-    "Reserved message names are not evidence that handlers already exist."
+    "Reserved message names are not evidence that handlers already exist.",
+    "Server match snapshots use the match.snapshot envelope and are broadcast after roster and lifecycle changes.",
+    "The countdown is informational; the server remains authoritative for the transition into the active phase."
   ]
 }
