@@ -1,0 +1,14 @@
+# Local build output
+dist/
+build/
+*.zip
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Runtime logs and local configuration
+*.log
+server-plugin/config/config.json
