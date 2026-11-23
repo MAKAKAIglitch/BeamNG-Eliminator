@@ -16,7 +16,7 @@
 - Client ZIP entry script: `scripts/modScript.lua`, which loads the GE extension `eliminator`.
 - GE extension entry point: `lua/ge/extensions/eliminator.lua`.
 
-The server plugin uses the BeamMP `onInit` and `onShutdown` lifecycle hooks. Its internal Lua modules remain in a subdirectory and are loaded explicitly.
+The server plugin uses BeamMP `onInit`/`onShutdown` lifecycle hooks and registers `onPlayerJoin`, `onPlayerDisconnect`, `onConsoleInput` and `onChatMessage`. Its internal Lua modules remain in a subdirectory and are loaded explicitly.
 
 ## Authority model
 
@@ -73,15 +73,15 @@ Implemented transitions and operations:
 - `final_showdown → finished`: accept a winner only if that competitor is still active.
 - Running phases can be stopped with a recorded reason; a new lobby can then be created.
 
-Numeric BeamMP runtime player IDs are normalized into match-scoped string competitor IDs; these IDs are not durable account/profile identifiers. The module returns snapshots rather than exposing its internal roster tables. Late joins in starting, active or final-showdown phases are spectators. The module currently exposes functions for a future event/command adapter; it does not yet register BeamMP player events, create a timer, send protocol messages, or persist results. Those integrations require their own tested steps.
+Numeric BeamMP runtime player IDs are normalized into match-scoped string competitor IDs; these IDs are not durable account/profile identifiers. The module returns snapshots rather than exposing its internal roster tables. Late joins in starting, active or final-showdown phases are spectators. The server entry point now connects the manager to player join/disconnect events, server-console commands and a one-second event timer used for a ten-second countdown. The adapter broadcasts versioned match snapshots and countdown messages; the client extension receives and validates those envelopes. This is an API-backed integration prototype, not yet a live-server compatibility test. Match results are not persisted.
 
-Pure-Lua lifecycle tests live in `tests/lua/test_match_manager.lua` and are included in CI and local build checks when Lua 5.3 is available.
+Pure-Lua lifecycle tests live in `tests/lua/test_match_manager.lua`; mocked adapter tests live in `tests/lua/test_server_adapter.lua`. Both are included in CI and local build checks when Lua 5.3 is available.
 
 ## Stable competitor slots
 
 The match roster is a server-owned set of 20 stable competitor identities. Slot assignment is locked before the countdown. A late player join is a spectator/queue event, never a reason to remove or despawn an AI competitor. AI removal is allowed only after a validated elimination or match termination.
 
-A disconnected human retains the same competitor identity during a reconnect grace period. If AI takeover is later implemented, it takes over that same identity and slot; it does not affect any other bot. This behavior depends on verified vehicle-control handoff and is not part of the initial scaffold.
+A disconnected human retains the same active competitor slot and is marked `connection_status = disconnected`; the match is not silently changed into an elimination. Reconnection with the same BeamMP runtime player ID restores that slot. There is not yet a timed reconnect grace period, cross-ID account matching, or AI takeover. If AI takeover is later implemented, it must take over that same identity and slot without affecting other bots.
 
 ## Player data and statistics
 
@@ -92,3 +92,19 @@ A storage adapter must be selected only after verifying the target BeamMP runtim
 ## Main menu and vehicle ownership
 
 The in-game UI provides Play, Garage, Statistics, Match History, Settings and How to Play. The permanent garage selection is separate from the temporary match vehicle. Players choose a balanced starter vehicle; Car Drops change only the current match vehicle and never overwrite the permanent garage collection.
+
+## BeamMP event adapter
+
+The root server entry point registers the documented BeamMP events and exposes these server-console commands:
+
+- `eliminator status` — print phase, active count, spectators and match ID.
+- `eliminator lobby` — create a new lobby when no match is running.
+- `eliminator start` — validate and lock the roster, then start a 10-second countdown.
+- `eliminator stop` — stop the current match and cancel the countdown.
+- `!eliminator` — player chat status command.
+
+Player joins during an open lobby claim slots. Joins after roster lock become spectators. Disconnects mark human competitors as disconnected without eliminating them. A disconnected lobby competitor prevents the match from starting until that same runtime ID reconnects.
+
+The server sends `match.snapshot` and `match.countdown` envelopes through BeamMP client events. The client validates protocol version/type before retaining the received state. The client currently logs these updates; there is no HUD yet.
+
+The adapter uses `MP.TriggerClientEventJson` when available (BeamMP Server 3.1.0+) and falls back to `MP.TriggerClientEvent` with `Util.JsonEncode`. The timer interval is 1000 ms. A mocked API test checks registration, commands, countdown, snapshots and disconnect behavior. Only a live target-server smoke test can confirm runtime compatibility and actual delivery to BeamNG clients.
