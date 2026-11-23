@@ -7,12 +7,16 @@ local MatchManager = require("modules.match_manager")
 local PROTOCOL_VERSION = 1
 local SNAPSHOT_EVENT = "eliminator:match_snapshot"
 local COUNTDOWN_EVENT = "eliminator:match_countdown"
+local SNAPSHOT_REQUEST_EVENT = "eliminator:request_snapshot"
+local SNAPSHOT_REQUEST_DATA =
+    '{"type":"match.snapshot.request","version":1,"request_id":"lobby-ui","payload":{}}'
 local COUNTDOWN_SECONDS = 10
 
 local match_sequence = 0
 local countdown_remaining = nil
 local countdown_timer_running = false
 local event_sequence = 0
+local snapshot_request_last_at = {}
 
 local function next_event_id()
     event_sequence = event_sequence + 1
@@ -136,7 +140,33 @@ function onEliminatorPlayerJoin(player_id)
     broadcast_snapshot()
 end
 
+function onEliminatorSnapshotRequest(player_id, data)
+    if type(player_id) ~= "number" or player_id < 0
+        or type(data) ~= "string" or data ~= SNAPSHOT_REQUEST_DATA then
+        return
+    end
+
+    local now = os.time()
+    local last_request = snapshot_request_last_at[player_id]
+    if last_request and now - last_request < 1 then
+        return
+    end
+    snapshot_request_last_at[player_id] = now
+
+    local envelope = {
+        type = "match.snapshot",
+        version = PROTOCOL_VERSION,
+        request_id = next_event_id(),
+        payload = MatchManager.snapshot()
+    }
+    local ok, err = send_event(player_id, SNAPSHOT_EVENT, envelope)
+    if not ok then
+        print("[BeamNG Eliminator] Requested snapshot send failed: " .. tostring(err))
+    end
+end
+
 function onEliminatorPlayerDisconnect(player_id)
+    snapshot_request_last_at[player_id] = nil
     local ok, result = MatchManager.disconnect_player(player_id)
     if ok then
         print("[BeamNG Eliminator] Player disconnected from " .. result.role
@@ -272,6 +302,7 @@ function onInit()
 
     MP.RegisterEvent("onPlayerJoin", "onEliminatorPlayerJoin")
     MP.RegisterEvent("onPlayerDisconnect", "onEliminatorPlayerDisconnect")
+    MP.RegisterEvent(SNAPSHOT_REQUEST_EVENT, "onEliminatorSnapshotRequest")
     MP.RegisterEvent("onConsoleInput", "onEliminatorConsoleInput")
     MP.RegisterEvent("onChatMessage", "onEliminatorChatMessage")
     MP.RegisterEvent("EliminatorCountdownTick", "onEliminatorCountdownTick")
