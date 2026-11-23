@@ -176,9 +176,9 @@ Writes should be resilient to server shutdown: match events and completed result
 
 Recommended state machine:
 
-`IDLE → QUEUING → LOBBY → ROSTER_LOCKED → COUNTDOWN → ACTIVE → FINAL_SHOWDOWN → RESULTS → IDLE`
+`WAITING → LOBBY → STARTING (roster locked/countdown) → ACTIVE → FINAL_SHOWDOWN → FINISHED`
 
-The server validates every transition. Repeated, stale or out-of-order client requests must be rejected safely.
+The initial server-side lifecycle manager implements the core phase transitions above. Queue/matchmaking, countdown timing, result persistence and client notifications remain integration work. The server must validate every transition. Repeated, stale or out-of-order client requests must be rejected safely.
 
 ## 8. Implementation order
 
