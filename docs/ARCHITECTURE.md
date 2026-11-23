@@ -103,8 +103,8 @@ The root server entry point registers the documented BeamMP events and exposes t
 - `eliminator stop` — stop the current match and cancel the countdown.
 - `!eliminator` — player chat status command.
 
-Player joins during an open lobby claim slots. Joins after roster lock become spectators. Disconnects mark human competitors as disconnected without eliminating them. A disconnected lobby competitor prevents the match from starting until that same runtime ID reconnects.
+Player joins during an open lobby claim slots. Joins after roster lock become spectators. Disconnects mark human competitors as disconnected without eliminating them. A disconnected lobby competitor prevents the match from starting; a disconnect during countdown cancels the countdown, clears only generated AI placeholders and reopens the lobby. Reconnection with the same runtime ID restores the original slot.
 
 The server sends `match.snapshot` and `match.countdown` envelopes through BeamMP client events. The client validates protocol version/type before retaining the received state. The client currently logs these updates; there is no HUD yet.
 
-The adapter uses `MP.TriggerClientEventJson` when available (BeamMP Server 3.1.0+) and falls back to `MP.TriggerClientEvent` with `Util.JsonEncode`. The timer interval is 1000 ms. A mocked API test checks registration, commands, countdown, snapshots and disconnect behavior. Only a live target-server smoke test can confirm runtime compatibility and actual delivery to BeamNG clients.
+The adapter uses `MP.TriggerClientEventJson` when available (BeamMP Server 3.1.0+) and falls back to `MP.TriggerClientEvent` with `Util.JsonEncode`. The timer interval is 1000 ms. Mocked API tests check registration, commands, countdown, snapshots, disconnect handling and countdown rollback. Only a live target-server smoke test can confirm runtime compatibility and actual delivery to BeamNG clients.
