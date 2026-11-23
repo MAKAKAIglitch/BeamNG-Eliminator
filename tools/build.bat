@@ -15,6 +15,8 @@ where node >nul 2>nul
 if not errorlevel 1 (
   node --check client-mod\ui\modules\apps\EliminatorLobby\app.js
   if errorlevel 1 exit /b 1
+  node tests\ui\test_lobby_app.js
+  if errorlevel 1 exit /b 1
 ) else (
   echo NOTE: Node.js not found; lobby UI JavaScript syntax check is skipped locally.
 )
