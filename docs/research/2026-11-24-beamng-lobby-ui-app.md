@@ -6,7 +6,7 @@
 
 ## 1. Official UI app structure
 
-BeamNG's UI app documentation describes apps built with AngularJS directives. The app metadata is stored in `app.json`; the directive implementation is in `app.js`; the app markup is in `app.html`; and optional styling can be supplied in `app.css`.
+BeamNG's UI app documentation describes apps built with AngularJS directives. The app metadata is stored in `app.json`; the directive implementation is in `app.js`; the app markup is in `app.html`; optional styling can be supplied in `app.css`, and `app.png` provides the selector image (recommended 250×120 px).
 
 The BeamMP UI-app guide demonstrates the following integration pattern:
 
