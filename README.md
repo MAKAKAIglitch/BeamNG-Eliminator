@@ -151,7 +151,7 @@ These checks do not verify BeamMP runtime compatibility or multiplayer synchroni
 - [ ] Add selectable spawn areas.
 - [ ] Implement vehicle placement at selected locations.
 - [ ] Distribute AI spawn locations.
-- [ ] Add match-ready checks and countdown.
+- [x] Add a server-controlled 10-second countdown after roster lock.\n- [ ] Add player-ready checks and a lobby countdown UI.
 
 ### Phase 3 — Vehicle drops
 - [ ] Create a vehicle catalogue and tier configuration.
