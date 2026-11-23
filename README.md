@@ -111,8 +111,9 @@ Requirements:
 - Python 3.
 - Windows: PowerShell (included with supported Windows versions).
 - Linux: `zip` command-line utility.
-- Optional for local Lua logic tests: Lua 5.3 (`lua5.3`).
-- Optional for local UI JavaScript syntax checks: Node.js (`node`). CI checks the UI script with Node.js.
+- Optional for local client-extension bridge tests: Lua 5.1 (`lua5.1`).
+- Optional for local server logic tests: Lua 5.3 (`lua5.3`).
+- Optional for local lobby UI syntax/state tests: Node.js (`node`). CI installs both Lua versions and checks the UI with Node.js.
 
 Windows:
 
@@ -127,7 +128,7 @@ chmod +x tools/build.sh
 ./tools/build.sh
 ```
 
-The scripts run Python checks and, when Lua 5.3 is installed, the competitor-roster, match-lifecycle and mocked BeamMP adapter Lua tests. They then create:
+The scripts run Python checks, Node.js lobby UI syntax/state tests when Node.js is installed, the client-extension bridge test when Lua 5.1 is installed, and the server roster/lifecycle/adapter tests when Lua 5.3 is installed. They then create:
 - `dist/Resources/Server/Eliminator/` — server plugin files.
 - `dist/Eliminator-client.zip` — client mod package.
 
