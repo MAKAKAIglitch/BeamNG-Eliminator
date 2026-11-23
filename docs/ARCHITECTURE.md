@@ -6,8 +6,9 @@
 |---|---|---|
 | `server-plugin/` | BeamMP Server Lua | Match state, roster, validation and results |
 | `client-mod/` | BeamNG.drive Lua/UI | Input, presentation, vehicle and AI prototypes |
+| `client-mod/ui/modules/apps/EliminatorLobby/` | BeamNG AngularJS UI app | Read-only 20-slot lobby presentation |
 | `shared/` | Source/configuration | Versioned protocol and common rules |
-| `tests/` | Python 3 and Lua 5.3 | Offline structural/configuration checks, pure-Lua logic tests and mocked BeamMP adapter tests |
+| `tests/` | Python 3, Lua 5.3 and Node.js | Offline structural/configuration checks, lobby UI contract checks, JavaScript syntax, pure-Lua logic tests and mocked BeamMP adapter tests |
 
 ## Loading and packaging
 
@@ -15,6 +16,7 @@
 - BeamMP client resource: one ZIP in `Resources/Client/`.
 - Client ZIP entry script: `scripts/modScript.lua`, which loads the GE extension `eliminator`.
 - GE extension entry point: `lua/ge/extensions/eliminator.lua`.
+- Native lobby app: `ui/modules/apps/EliminatorLobby/` (`app.json`, `app.js`, `app.html`, `app.css`).
 
 The server plugin uses BeamMP `onInit`/`onShutdown` lifecycle hooks and registers `onPlayerJoin`, `onPlayerDisconnect`, `onConsoleInput` and `onChatMessage`. Its internal Lua modules remain in a subdirectory and are loaded explicitly.
 
@@ -57,7 +59,7 @@ Run its logic tests from the repository root with:
 lua5.3 tests/lua/test_roster_manager.lua
 ```
 
-The CI workflow runs this test after installing Lua 5.3. Python tests check repository structure, JSON validity and protocol/configuration consistency. These are offline logic checks, not a real BeamMP server integration test.
+The CI workflow runs this test after installing Lua 5.3. Python tests check repository structure, JSON validity, protocol/configuration consistency and lobby UI assets. Node.js checks the UI directive syntax. These are offline checks, not a real BeamMP server integration test.
 
 ## Match lifecycle manager
 
@@ -105,6 +107,8 @@ The root server entry point registers the documented BeamMP events and exposes t
 
 Player joins during an open lobby claim slots. Joins after roster lock become spectators. Disconnects mark human competitors as disconnected without eliminating them. A disconnected lobby competitor prevents the match from starting; a disconnect during countdown cancels the countdown, clears only generated AI placeholders and reopens the lobby. Reconnection with the same runtime ID restores the original slot.
 
-The server sends `match.snapshot` and `match.countdown` envelopes through BeamMP client events. The client validates protocol version/type before retaining the received state. The client currently logs these updates; there is no HUD yet.
+The server sends `match.snapshot` and `match.countdown` envelopes through BeamMP client events. The client validates protocol version/type before retaining the received state. A native AngularJS lobby app receives the cached snapshot and countdown through the namespaced `EliminatorLobbyUpdate` guihooks event and displays all 20 logical slots, player/AI/empty state, disconnected/eliminated state, spectators, match phase and countdown.
+
+The lobby app is currently read-only. It has no Ready/Leave controls, spawn selection or client-to-server actions because those request handlers and server validations are not implemented yet. AI roster entries remain logical identities, not spawned or synchronized vehicles. The UI app and event bridge have not yet been verified in a live BeamNG/BeamMP session.
 
 The adapter uses `MP.TriggerClientEventJson` when available (BeamMP Server 3.1.0+) and falls back to `MP.TriggerClientEvent` with `Util.JsonEncode`. The timer interval is 1000 ms. Mocked API tests check registration, commands, countdown, snapshots, disconnect handling and countdown rollback. Only a live target-server smoke test can confirm runtime compatibility and actual delivery to BeamNG clients.
