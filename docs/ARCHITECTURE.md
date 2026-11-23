@@ -7,7 +7,7 @@
 | `server-plugin/` | BeamMP Server Lua | Match state, roster, validation and results |
 | `client-mod/` | BeamNG.drive Lua/UI | Input, presentation, vehicle and AI prototypes |
 | `shared/` | Source/configuration | Versioned protocol and common rules |
-| `tests/` | Local Python 3 | Offline structural and configuration checks |
+| `tests/` | Python 3 and Lua 5.3 | Offline structural/configuration checks and pure-Lua roster logic tests |
 
 ## Loading and packaging
 
@@ -40,6 +40,24 @@ Only after this gate passes should the project scale to 3, 5, 10 and 20 competit
 - Client mod: `dist/Eliminator-client.zip`
 
 Builds are local. This repository does not add scheduled GitHub Actions workflows.
+
+## Roster logic prototype and tests
+
+`server-plugin/modules/roster_manager.lua` now contains a pure-Lua roster model:
+- Human players claim vacant slots while the lobby is open.
+- Locking the roster fills all remaining slots with deterministic AI competitor IDs.
+- Late joiners are recorded as spectators and cannot mutate locked competitor slots.
+- Elimination marks only the addressed competitor; the slot identity remains available for results/history.
+
+The module deliberately does not spawn or delete BeamNG vehicles. Vehicle lifecycle operations require a separately verified BeamMP/BeamNG synchronization implementation.
+
+Run its logic tests from the repository root with:
+
+```sh
+lua5.3 tests/lua/test_roster_manager.lua
+```
+
+The CI workflow runs this test after installing Lua 5.3. Python tests check repository structure, JSON validity and protocol/configuration consistency. These are offline logic checks, not a real BeamMP server integration test.
 
 ## Stable competitor slots
 
