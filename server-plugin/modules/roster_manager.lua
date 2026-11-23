@@ -78,9 +78,27 @@ end
 
 -- Lock the lobby and fill every remaining slot with a deterministic AI ID.
 -- No AI entity is spawned here; this is only the authoritative roster model.
-function RosterManager.lock_and_fill_ai(roster, ai_id_prefix)
+function RosterManager.lock_and_fill_ai(roster, ai_id_prefix, minimum_humans)
     if roster.locked then
         return false, "already_locked"
+    end
+
+    minimum_humans = minimum_humans or 1
+    if type(minimum_humans) ~= "number"
+        or minimum_humans < 1
+        or minimum_humans % 1 ~= 0
+        or minimum_humans > roster.capacity then
+        return false, "invalid_minimum_humans"
+    end
+
+    local human_count = 0
+    for _, slot in ipairs(roster.slots) do
+        if slot.kind == "human" and slot.status == "active" then
+            human_count = human_count + 1
+        end
+    end
+    if human_count < minimum_humans then
+        return false, "minimum_humans_not_met"
     end
 
     ai_id_prefix = ai_id_prefix or "ai:"
