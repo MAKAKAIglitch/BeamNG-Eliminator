@@ -1,12 +1,21 @@
 -- BeamNG Eliminator client extension.
--- Receives authoritative match snapshots from the BeamMP server.
--- Gameplay UI, vehicle control and AI synchronization are separate milestones.
+-- Receives authoritative match snapshots from the BeamMP server and forwards
+-- them to the native BeamNG UI app through guihooks.
 
 local M = {}
 
 local extension_loaded = false
 local latest_snapshot = nil
 local countdown_seconds = nil
+
+local function publish_ui_update()
+    if type(guihooks) == "table" and type(guihooks.trigger) == "function" then
+        guihooks.trigger("EliminatorLobbyUpdate", {
+            snapshot = latest_snapshot,
+            countdown_seconds = countdown_seconds
+        })
+    end
+end
 
 local function decode_envelope(raw_data, expected_type)
     if type(raw_data) ~= "string" or type(jsonDecode) ~= "function" then
@@ -34,6 +43,11 @@ local function onMatchSnapshot(raw_data)
     end
 
     latest_snapshot = snapshot
+    if snapshot.phase ~= "starting" then
+        countdown_seconds = nil
+    end
+    publish_ui_update()
+
     log("I", "BeamNGEliminator",
         "Match state updated: " .. tostring(snapshot.phase)
         .. ", active competitors: " .. tostring(snapshot.active_competitors))
@@ -47,8 +61,13 @@ local function onMatchCountdown(raw_data)
     end
 
     countdown_seconds = countdown.remaining_seconds
+    publish_ui_update()
     log("I", "BeamNGEliminator",
         "Match starts in " .. tostring(countdown_seconds) .. " seconds.")
+end
+
+local function requestLobbySnapshot()
+    publish_ui_update()
 end
 
 function M.onExtensionLoaded()
@@ -58,6 +77,7 @@ function M.onExtensionLoaded()
         AddEventHandler("eliminator:match_countdown", onMatchCountdown)
     end
     log("I", "BeamNGEliminator", "Client extension loaded.")
+    publish_ui_update()
 end
 
 function M.onExtensionUnloaded()
@@ -68,6 +88,7 @@ function M.onExtensionUnloaded()
     extension_loaded = false
     latest_snapshot = nil
     countdown_seconds = nil
+    publish_ui_update()
     log("I", "BeamNGEliminator", "Client extension unloaded.")
 end
 
@@ -82,5 +103,7 @@ end
 function M.getCountdown()
     return countdown_seconds
 end
+
+M.requestLobbySnapshot = requestLobbySnapshot
 
 return M
