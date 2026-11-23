@@ -61,6 +61,9 @@ jobs:
             luac5.3 -p "${file}"
           done
 
+      - name: Check lobby UI JavaScript syntax
+        run: node --check client-mod/ui/modules/apps/EliminatorLobby/app.js
+
       - name: Test competitor roster invariants (Lua 5.3)
         run: lua5.3 tests/lua/test_roster_manager.lua
 
