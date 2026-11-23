@@ -66,6 +66,7 @@ class ProjectStructureTests(unittest.TestCase):
 
         self.assertIn("match.snapshot", message_types)
         self.assertIn("match.countdown", message_types)
+        self.assertIn("match.snapshot.request", message_types)
 
         self.assertEqual(config["network"]["protocol_version"], protocol["protocol_version"])
         self.assertEqual(config["match"]["competitor_limit"], rules["competitor_capacity"])
