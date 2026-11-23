@@ -11,4 +11,5 @@ Research notes and technical investigations for BeamNG Eliminator.
 ## Project documentation
 
 - [Architecture](../ARCHITECTURE.md) — runtime boundaries, authority model and AI synchronization gate.
+- [Game Design](../GAME_DESIGN.md) — player menu, garage/loadout separation, 20-slot bot-retention rules, career statistics, match history and acceptance tests.
 - [v0.1.0 release notes](../release/0.1.0.md) — scope and limitations of the architecture foundation.
