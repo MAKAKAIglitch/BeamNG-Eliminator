@@ -40,3 +40,19 @@ Only after this gate passes should the project scale to 3, 5, 10 and 20 competit
 - Client mod: `dist/Eliminator-client.zip`
 
 Builds are local. This repository does not add scheduled GitHub Actions workflows.
+
+## Stable competitor slots
+
+The match roster is a server-owned set of 20 stable competitor identities. Slot assignment is locked before the countdown. A late player join is a spectator/queue event, never a reason to remove or despawn an AI competitor. AI removal is allowed only after a validated elimination or match termination.
+
+A disconnected human retains the same competitor identity during a reconnect grace period. If AI takeover is later implemented, it takes over that same identity and slot; it does not affect any other bot. This behavior depends on verified vehicle-control handoff and is not part of the initial scaffold.
+
+## Player data and statistics
+
+The server derives match results and career statistics from validated events. The client is a presentation layer and cannot authoritatively increment wins, eliminations or drop counts. Persistent profiles use opaque server-side identifiers; connection IPs and unrelated connection metadata must not be copied into player profiles or public match history.
+
+A storage adapter must be selected only after verifying the target BeamMP runtime's supported persistence mechanisms. Do not rely on undocumented filesystem APIs. The data model and player-facing screens are specified in [GAME_DESIGN.md](GAME_DESIGN.md).
+
+## Main menu and vehicle ownership
+
+The in-game UI provides Play, Garage, Statistics, Match History, Settings and How to Play. The permanent garage selection is separate from the temporary match vehicle. Players choose a balanced starter vehicle; Car Drops change only the current match vehicle and never overwrite the permanent garage collection.
