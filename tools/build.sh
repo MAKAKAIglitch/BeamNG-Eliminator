@@ -22,6 +22,12 @@ else
   echo "NOTE: Node.js not found; lobby UI JavaScript syntax check is skipped locally."
 fi
 
+if command -v lua5.1 >/dev/null 2>&1; then
+  lua5.1 tests/lua/test_client_extension.lua
+else
+  echo "NOTE: lua5.1 not found; client extension bridge test is skipped locally."
+fi
+
 if command -v lua5.3 >/dev/null 2>&1; then
   lua5.3 tests/lua/test_roster_manager.lua
   lua5.3 tests/lua/test_match_manager.lua
