@@ -81,6 +81,16 @@ local function test_elimination_changes_only_target(roster)
     expect(RosterManager.count_active(roster) == 19, "duplicate elimination must not change counts")
 end
 
+local function test_minimum_human_requirement()
+    local roster = RosterManager.create_empty_roster(20)
+    local ok, reason = RosterManager.lock_and_fill_ai(roster)
+    expect(not ok and reason == "minimum_humans_not_met",
+        "an all-AI match must not lock without the required human player")
+    expect(not roster.locked, "failed lock must leave the roster unlocked")
+    expect(RosterManager.count_active(roster) == 0,
+        "failed lock must not create AI competitors")
+end
+
 local function test_lobby_full_and_validation()
     local roster = RosterManager.create_empty_roster(20)
     for index = 1, 20 do
@@ -104,6 +114,7 @@ end
 local roster = test_five_humans_fifteen_ai()
 test_late_joins_never_replace_ai(roster)
 test_elimination_changes_only_target(roster)
+test_minimum_human_requirement()
 test_lobby_full_and_validation()
 
 print("PASS: roster invariants (20 slots, late joins, AI retention, elimination, duplicates)")
