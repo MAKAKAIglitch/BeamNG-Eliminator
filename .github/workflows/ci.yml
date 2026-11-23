@@ -61,5 +61,8 @@ jobs:
             luac5.3 -p "${file}"
           done
 
+      - name: Test competitor roster invariants (Lua 5.3)
+        run: lua5.3 tests/lua/test_roster_manager.lua
+
       - name: Validate JSON configs, protocol and run Python tests
         run: python -m unittest discover -s tests -v
