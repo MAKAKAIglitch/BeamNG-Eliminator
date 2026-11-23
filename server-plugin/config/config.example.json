@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "match": {
+    "competitor_limit": 20,
+    "minimum_human_players": 1,
+    "fill_open_slots_with_ai": true
+  },
+  "network": {
+    "protocol_version": 1
+  },
+  "debug": {
+    "enabled": false
+  }
+}
