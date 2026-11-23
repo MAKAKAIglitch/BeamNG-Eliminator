@@ -17,6 +17,7 @@ python3 -m unittest discover -s tests -v
 
 if command -v node >/dev/null 2>&1; then
   node --check client-mod/ui/modules/apps/EliminatorLobby/app.js
+  node tests/ui/test_lobby_app.js
 else
   echo "NOTE: Node.js not found; lobby UI JavaScript syntax check is skipped locally."
 fi
