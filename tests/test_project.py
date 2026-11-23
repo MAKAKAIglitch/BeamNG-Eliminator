@@ -63,6 +63,9 @@ class ProjectStructureTests(unittest.TestCase):
         self.assertEqual(len(message_types), len(set(message_types)))
         self.assertTrue(all(isinstance(item, str) and item for item in message_types))
 
+        self.assertIn("match.snapshot", message_types)
+        self.assertIn("match.countdown", message_types)
+
         self.assertEqual(config["network"]["protocol_version"], protocol["protocol_version"])
         self.assertEqual(config["match"]["competitor_limit"], rules["competitor_capacity"])
         self.assertGreaterEqual(config["match"]["minimum_human_players"], 1)
