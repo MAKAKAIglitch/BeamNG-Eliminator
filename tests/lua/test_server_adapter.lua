@@ -13,6 +13,11 @@ local player_names = {
 }
 local timer_intervals = {}
 local cancelled_timers = {}
+local fake_time = 1000
+local original_os_time = os.time
+os.time = function()
+    return fake_time
+end
 
 MP = {
     RegisterEvent = function(event_name, function_name)
@@ -79,6 +84,16 @@ expect(sent_events[#sent_events].event_name == "eliminator:match_snapshot",
     "snapshot request must use the normal snapshot event")
 expect(sent_events[#sent_events].envelope.type == "match.snapshot",
     "snapshot request response must use the snapshot envelope")
+local snapshot_response_count = #sent_events
+onEliminatorSnapshotRequest(7,
+    '{"type":"match.snapshot.request","version":1,"request_id":"lobby-ui","payload":{}}')
+expect(#sent_events == snapshot_response_count,
+    "snapshot requests should be rate-limited per player")
+fake_time = fake_time + 1
+onEliminatorSnapshotRequest(7,
+    '{"type":"match.snapshot.request","version":1,"request_id":"lobby-ui","payload":{}}')
+expect(#sent_events == snapshot_response_count + 1,
+    "a new snapshot request should be allowed after the rate limit expires")
 
 onEliminatorPlayerJoin(7)
 onEliminatorPlayerJoin(8)
@@ -149,5 +164,6 @@ expect(sent_events[#sent_events].envelope.payload.competitors[2].status == "vaca
     "aborted countdown should clear generated AI placeholders")
 
 onShutdown()
+os.time = original_os_time
 
 print("PASS: BeamMP adapter (events, console commands, countdown, snapshots, disconnect)")
