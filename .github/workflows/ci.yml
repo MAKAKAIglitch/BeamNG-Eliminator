@@ -61,8 +61,5 @@ jobs:
             luac5.3 -p "${file}"
           done
 
-      - name: Validate JSON configs and protocol
-        run: python -m unittest tests.test_project.ProjectStructureTests.test_json_files_are_valid tests.test_project.ProjectStructureTests.test_protocol_contract_matches_config -v
-
-      - name: Run Python test suite
+      - name: Validate JSON configs, protocol and run Python tests
         run: python -m unittest discover -s tests -v
