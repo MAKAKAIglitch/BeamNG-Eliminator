@@ -1,5 +1,5 @@
 -- BeamNG Eliminator - BeamMP server plugin entry point.
--- Tested against the documented BeamMP Server 3.x event model.
+-- Implemented against the documented BeamMP Server 3.x event model.
 -- Runtime integration still requires a live server smoke test.
 
 local MatchManager = require("modules.match_manager")
