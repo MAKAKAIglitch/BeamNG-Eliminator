@@ -1,0 +1,77 @@
+<div class="bngApp eliminator-lobby">
+  <link type="text/css" rel="stylesheet" href="/ui/modules/apps/EliminatorLobby/app.css" />
+
+  <header class="el-header">
+    <div>
+      <div class="el-eyebrow">BEAMNG ELIMINATOR</div>
+      <h2>Лобби матча</h2>
+    </div>
+    <div class="el-phase" ng-class="'phase-' + (snapshot.phase || 'waiting')">
+      {{ phaseLabel(snapshot.phase) }}
+    </div>
+  </header>
+
+  <section class="el-overview">
+    <div class="el-stat">
+      <span class="el-stat-value">{{ activeCount() }}<small>/20</small></span>
+      <span class="el-stat-label">Участники</span>
+    </div>
+    <div class="el-stat">
+      <span class="el-stat-value">{{ countKind('human') }}</span>
+      <span class="el-stat-label">Игроки</span>
+    </div>
+    <div class="el-stat">
+      <span class="el-stat-value">{{ countKind('ai') }}</span>
+      <span class="el-stat-label">AI</span>
+    </div>
+    <div class="el-stat">
+      <span class="el-stat-value">{{ spectatorCount() }}</span>
+      <span class="el-stat-label">Зрители</span>
+    </div>
+  </section>
+
+  <section class="el-countdown" ng-if="countdownSeconds !== null">
+    <span class="el-countdown-label">СТАРТ ЧЕРЕЗ</span>
+    <strong>{{ countdownSeconds }}</strong>
+    <span>сек.</span>
+  </section>
+
+  <section class="el-roster">
+    <div class="el-section-heading">
+      <h3>Состав матча</h3>
+      <span ng-if="snapshot.roster_locked" class="el-lock-state">Состав закрыт</span>
+      <span ng-if="!snapshot.roster_locked" class="el-open-state">Набор открыт</span>
+    </div>
+
+    <div class="el-slot-grid">
+      <article class="el-slot"
+        ng-repeat="slot in slots track by slot.slot"
+        ng-class="['slot-' + slot.kind, 'status-' + slot.status, slot.connection_status === 'disconnected' ? 'is-disconnected' : '']">
+        <span class="el-slot-number">{{ ('0' + slot.slot).slice(-2) }}</span>
+        <span class="el-slot-kind">{{ kindLabel(slot.kind) }}</span>
+        <strong class="el-slot-name">{{ slot.display_name || slot.competitor_id || 'Свободно' }}</strong>
+        <span class="el-slot-status">{{ slotStatusLabel(slot) }}</span>
+      </article>
+    </div>
+  </section>
+
+  <section class="el-spectators" ng-if="snapshot.spectators && snapshot.spectators.length">
+    <div class="el-section-heading">
+      <h3>Зрители и очередь</h3>
+      <span>{{ snapshot.spectators.length }}</span>
+    </div>
+    <div class="el-spectator-list">
+      <div class="el-spectator" ng-repeat="spectator in snapshot.spectators track by spectator.player_id">
+        <span>{{ spectator.player_id }}</span>
+        <small>{{ spectator.status === 'disconnected' ? 'Отключён' : 'Наблюдает' }}</small>
+      </div>
+    </div>
+  </section>
+
+  <footer class="el-footer">
+    <span ng-if="snapshot.match_id">Матч {{ snapshot.match_id }}</span>
+    <span ng-if="!snapshot.match_id">Ожидание данных матча</span>
+    <span ng-if="snapshot.stop_reason">Причина остановки: {{ snapshot.stop_reason }}</span>
+    <span class="el-live-indicator"><i></i> Данные сервера</span>
+  </footer>
+</div>
