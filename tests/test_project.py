@@ -75,6 +75,9 @@ class ProjectStructureTests(unittest.TestCase):
         rules = load_json(ROOT / "shared/constants/game-rules.json")
         self.assertEqual(rules["competitor_capacity"], 20)
 
+    def test_lua_roster_test_is_present(self):
+        self.assertTrue((ROOT / "tests/lua/test_roster_manager.lua").is_file())
+
     def test_server_root_has_single_lua_entrypoint(self):
         root_lua = list((ROOT / "server-plugin").glob("*.lua"))
         self.assertEqual([path.name for path in root_lua], ["main.lua"])
