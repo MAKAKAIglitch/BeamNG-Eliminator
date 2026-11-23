@@ -6,7 +6,7 @@ BeamNG Eliminator is a planned multiplayer game mode inspired by the open-world 
 
 The project is intended to support **exactly 20 active competitors per match**, combining human players with AI-controlled opponents.
 
-> **Project status:** Server integration prototype. The repository now contains a pure-Lua roster and match lifecycle core, a BeamMP event/console adapter, a 10-second server countdown, and client receipt of authoritative snapshots. It is still not a playable game mode; live-server compatibility and all vehicle gameplay systems remain unverified or unimplemented.
+> **Project status:** Early UI integration prototype. The repository contains the server-side roster/lifecycle core, BeamMP adapter and countdown, client snapshot receiver, and a native read-only lobby UI showing the 20 competitor slots. It is not yet a playable game mode: the UI/event bridge still needs an in-game smoke test, and player controls, spawn selection and vehicle gameplay remain unimplemented.
 
 ## Core concept
 
@@ -35,8 +35,8 @@ Included:
 - Local Windows and Linux packaging scripts.
 
 Not implemented yet:
-- Playable in-game lobby UI or spawn selection.
-- Live BeamMP server smoke-test and two-client verification.
+- Player-facing lobby actions (Ready/Leave), spawn selection and map selection.
+- Live BeamMP server smoke-test and two-client verification of UI delivery and event updates.
 - Synchronized AI vehicles or AI driving.
 - Vehicle drops, head-to-head races, arena contraction or final showdown.
 
@@ -99,8 +99,8 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the initial architectur
 - **`server-plugin/`** — authoritative match state, competitor roster and validation.
 - **`client-mod/`** — BeamNG extension loaded through `scripts/modScript.lua`, input, UI, world presentation and AI prototypes.
 - **`shared/`** — versioned network protocol and common game rules.
-- **`tests/`** — Python structural/configuration checks and Lua tests for roster invariants, lifecycle transitions and the mocked BeamMP adapter.
-- **`.github/workflows/ci.yml`** — push-to-main/manual CI: Lua 5.1 client syntax, Lua 5.3 server syntax, recursive JSON validation, protocol/config consistency, Lua roster, match-lifecycle and mocked BeamMP adapter tests plus Python tests.
+- **`tests/`** — Python structural/configuration checks, lobby UI contract checks and Lua tests for roster invariants, lifecycle transitions and the mocked BeamMP adapter.
+- **`.github/workflows/ci.yml`** — push-to-main/manual CI: Lua 5.1 client syntax, Lua 5.3 server syntax, lobby UI JavaScript syntax, recursive JSON validation, protocol/config consistency, Lua roster, match-lifecycle and mocked BeamMP adapter tests plus Python tests.
 - **`tools/`** — local packaging scripts; CI has no scheduled runs.
 
 The server owns official match outcomes. Client-side vehicle physics and AI synchronization are separate engineering challenges. The first AI milestone is one controlled AI vehicle observed consistently by two clients; scaling to 20 must wait until that is proven.
@@ -147,7 +147,7 @@ These checks do not verify BeamMP runtime compatibility or multiplayer synchroni
 - [ ] Verify plugin loading and event delivery on the target BeamMP Server build with two BeamNG clients.
 
 ### Phase 2 — Spawn selection
-- [ ] Create the in-game map UI.
+- [x] Create the read-only 20-slot lobby UI app (display only; runtime verification pending).
 - [ ] Add selectable spawn areas.
 - [ ] Implement vehicle placement at selected locations.
 - [ ] Distribute AI spawn locations.
