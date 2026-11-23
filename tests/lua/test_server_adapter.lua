@@ -74,6 +74,8 @@ expect(sent_events[#sent_events].envelope.type == "match.snapshot",
     "snapshot must use the versioned protocol envelope")
 expect(sent_events[#sent_events].envelope.version == 1,
     "snapshot protocol version should be 1")
+expect(type(sent_events[#sent_events].envelope.request_id) == "string",
+    "snapshot should include a unique server event ID")
 expect(#sent_events[#sent_events].envelope.payload.competitors == 20,
     "snapshot should expose all twenty roster slots")
 
