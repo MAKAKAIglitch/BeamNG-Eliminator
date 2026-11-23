@@ -52,7 +52,7 @@ The target is 20 active competitor slots. Human players occupy available slots a
 | 15 | 5 | 20 |
 | 20 | 0 | 20 |
 
-The exact rules for late joining, eliminated players, and spectator mode will be finalized during implementation. The 20-slot target refers to active competitors, not necessarily the number of connected human clients.
+**Roster invariant:** once the match starts, late joiners become spectators/queued players. They never displace an AI competitor. An AI leaves the active roster only after server-confirmed elimination or match termination. Disconnect takeover, if implemented, reuses the same competitor slot after a grace period; it does not delete unrelated bots.
 
 ### Intended match flow
 
@@ -65,7 +65,7 @@ The exact rules for late joining, eliminated players, and spectator mode will be
 7. Elimination and arena progression.
 8. Final Showdown and winner screen.
 
-These are design goals, not currently implemented gameplay.
+These are design goals, not currently implemented gameplay. The full player flow, garage separation, persistent statistics, match history, roster state machine and acceptance tests are specified in [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 
 ## Vehicle progression
 
@@ -85,6 +85,10 @@ Vehicles are planned to be grouped into ten tiers, from slower entry-level cars 
 | 10 | Top-tier vehicles |
 
 The actual vehicle list, configurations, balancing, and tier progression will be defined separately. The initial implementation should prioritize vehicles included with BeamNG.drive to reduce dependencies on third-party vehicle mods.
+
+## Player experience and progression
+
+The planned mode has an in-game main menu with Play, Garage, Statistics, Match History, Settings and How to Play. The permanent garage is separate from the temporary match vehicle: players choose from a balanced starter pool, then upgrade through Car Drops during a match. Drops never overwrite the permanent garage. Career statistics are server-derived and include wins, placements, duels, eliminations, drops, survival time and distance. See [Game Design](docs/GAME_DESIGN.md) for the complete specification.
 
 ## Architecture
 
@@ -174,7 +178,7 @@ These checks do not verify BeamMP runtime compatibility or multiplayer synchroni
 ## Design principles
 
 - **Server-authoritative outcomes:** the server decides match state, drop ownership, rewards and results.
-- **Consistent 20-slot match:** maintain 20 active competitor slots using human players and AI.
+- **Stable 20-slot match:** joining players never remove active bots; late joiners spectate or queue for the next match.
 - **Shared rules:** AI and human competitors use the same progression and race rules wherever practical.
 - **Vanilla-first vehicles:** start with vehicles included in BeamNG.drive.
 - **Incremental testing:** prove multiplayer vehicle synchronization with a small number of AI cars before scaling toward 20.
