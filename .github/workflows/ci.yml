@@ -67,6 +67,9 @@ jobs:
       - name: Test lobby UI state updates
         run: node tests/ui/test_lobby_app.js
 
+      - name: Test client extension UI bridge (Lua 5.1)
+        run: lua5.1 tests/lua/test_client_extension.lua
+
       - name: Test competitor roster invariants (Lua 5.3)
         run: lua5.3 tests/lua/test_roster_manager.lua
 
