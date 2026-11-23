@@ -1,7 +1,7 @@
 # BeamMP Match Lifecycle Adapter — Integration Research
 
 **Date:** 2026-11-24  
-**Short description:** Verification of the BeamMP Server 3.x events, console-command hook, event timers and server-to-client event transport used by the first live adapter prototype.
+**Short description:** Verification of the BeamMP Server 3.x events, console-command hook, event timers and server-to-client event transport used by the first server adapter prototype.
 
 **Research status:** Documentation-backed implementation reference. The adapter has mocked Lua tests, but has not yet been run on a live BeamMP server or verified with two BeamNG clients.
 
