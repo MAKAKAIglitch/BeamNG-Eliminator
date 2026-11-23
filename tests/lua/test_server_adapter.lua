@@ -114,6 +114,23 @@ expect(type(stop_result) == "string" and stop_result:find("stopped", 1, true),
 expect(sent_events[#sent_events].envelope.payload.phase == "stopped",
     "stopped phase should be broadcast")
 
+local new_lobby = onEliminatorConsoleInput("eliminator lobby")
+expect(type(new_lobby) == "string" and new_lobby:find("Lobby created", 1, true),
+    "server should be able to create the next lobby")
+onEliminatorPlayerJoin(8)
+local second_start = onEliminatorConsoleInput("eliminator start")
+expect(type(second_start) == "string" and second_start:find("countdown started", 1, true),
+    "second lobby should start countdown")
+onEliminatorPlayerDisconnect(8)
+onEliminatorCountdownTick()
+local aborted_status = onEliminatorConsoleInput("eliminator status")
+expect(aborted_status:find("phase=lobby", 1, true),
+    "disconnect during countdown should abort back to lobby")
+expect(sent_events[#sent_events].envelope.payload.roster_locked == false,
+    "aborted countdown should unlock the roster")
+expect(sent_events[#sent_events].envelope.payload.competitors[2].status == "vacant",
+    "aborted countdown should clear generated AI placeholders")
+
 onShutdown()
 
 print("PASS: BeamMP adapter (events, console commands, countdown, snapshots, disconnect)")
