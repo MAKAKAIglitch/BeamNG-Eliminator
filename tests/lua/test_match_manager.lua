@@ -198,6 +198,37 @@ local function test_disconnect_and_same_id_reconnect()
     expect(locked, "lobby should lock after player reconnects")
 end
 
+local function test_abort_countdown_reopens_lobby()
+    MatchManager.initialize({
+        competitor_limit = 4,
+        minimum_human_players = 1,
+        fill_open_slots_with_ai = true
+    })
+    MatchManager.create_lobby("match:test:abort")
+    MatchManager.add_player(88, "Countdown Driver")
+
+    local locked, lock_result = MatchManager.lock_roster()
+    expect(locked and lock_result.ai_added == 3,
+        "countdown test should fill three AI slots")
+    local disconnected = MatchManager.disconnect_player(88)
+    expect(disconnected, "human should disconnect during countdown")
+
+    local aborted, snapshot =
+        MatchManager.abort_starting("human_disconnected_during_countdown")
+    expect(aborted, "starting phase should be abortable")
+    expect(snapshot.phase == "lobby", "aborted countdown should reopen lobby")
+    expect(not snapshot.roster_locked, "aborted countdown should unlock roster")
+    expect(snapshot.competitors[1].competitor_id == "player:88",
+        "human identity should remain in the original slot")
+    expect(snapshot.competitors[1].connection_status == "disconnected",
+        "human connection state should remain disconnected")
+    expect(snapshot.competitors[2].status == "vacant"
+        and snapshot.competitors[2].kind == "empty",
+        "generated AI placeholder should be cleared on pre-match abort")
+    expect(snapshot.active_competitors == 1,
+        "only the original human slot should remain active")
+end
+
 local function test_stop_and_restart()
     MatchManager.initialize()
     MatchManager.create_lobby("match:test:003")
@@ -219,6 +250,7 @@ test_full_lifecycle_and_late_join()
 test_transition_guards_and_invalid_config()
 test_numeric_beammp_player_ids()
 test_disconnect_and_same_id_reconnect()
+test_abort_countdown_reopens_lobby()
 test_stop_and_restart()
 
 print("PASS: match lifecycle (lobby, lock, countdown, active, showdown, results, late joins)")
