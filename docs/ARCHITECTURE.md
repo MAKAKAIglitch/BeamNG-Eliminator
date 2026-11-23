@@ -9,6 +9,15 @@
 | `shared/` | Source/configuration | Versioned protocol and common rules |
 | `tests/` | Local Python 3 | Offline structural and configuration checks |
 
+## Loading and packaging
+
+- BeamMP server plugin: `Resources/Server/Eliminator/main.lua` plus its `modules/` directory.
+- BeamMP client resource: one ZIP in `Resources/Client/`.
+- Client ZIP entry script: `scripts/modScript.lua`, which loads the GE extension `eliminator`.
+- GE extension entry point: `lua/ge/extensions/eliminator.lua`.
+
+The server plugin uses the BeamMP `onInit` and `onShutdown` lifecycle hooks. Its internal Lua modules remain in a subdirectory and are loaded explicitly.
+
 ## Authority model
 
 The server owns the official match state. Clients send requests; the server validates them and broadcasts accepted state changes. Client-side physics and AI vehicle control are separate engineering problems and must be verified in multiplayer before being treated as synchronized gameplay.
