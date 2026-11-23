@@ -59,7 +59,7 @@ Run its logic tests from the repository root with:
 lua5.3 tests/lua/test_roster_manager.lua
 ```
 
-The CI workflow runs this test after installing Lua 5.3. Python tests check repository structure, JSON validity, protocol/configuration consistency and lobby UI assets. Node.js checks the UI directive syntax. These are offline checks, not a real BeamMP server integration test.
+The CI workflow runs this test after installing Lua 5.3. Python tests check repository structure, JSON validity, protocol/configuration consistency and lobby UI assets. Node.js checks the UI directive syntax and exercises lobby state updates; a Lua 5.1 mocked test checks the client extension's event bridge. These are offline checks, not a real BeamMP server integration test.
 
 ## Match lifecycle manager
 
