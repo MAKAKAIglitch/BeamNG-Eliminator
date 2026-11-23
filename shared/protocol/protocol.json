@@ -7,7 +7,15 @@
     "request_id": "string|null",
     "payload": "object"
   },
-  "reserved_message_types": [
+  "rules": [
+    "The server validates all state-changing requests.",
+    "Clients must reject unsupported protocol versions.",
+    "Untrusted client payloads must be validated before use.",
+    "Server match snapshots use the match.snapshot envelope and are broadcast after roster and lifecycle changes.",
+    "The countdown is informational; the server remains authoritative for the transition into the active phase.",
+    "Message types not listed as implemented in the architecture documentation remain reserved for future handlers."
+  ],
+  "message_types": [
     "client.hello",
     "server.state",
     "match.snapshot",
@@ -18,13 +26,5 @@
     "race.progress",
     "match.result",
     "match.countdown"
-  ],
-  "rules": [
-    "The server validates all state-changing requests.",
-    "Clients must reject unsupported protocol versions.",
-    "Untrusted client payloads must be validated before use.",
-    "Reserved message names are not evidence that handlers already exist.",
-    "Server match snapshots use the match.snapshot envelope and are broadcast after roster and lifecycle changes.",
-    "The countdown is informational; the server remains authoritative for the transition into the active phase."
   ]
 }
