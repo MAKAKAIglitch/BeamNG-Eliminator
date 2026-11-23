@@ -138,7 +138,9 @@ These checks do not verify BeamMP runtime compatibility or multiplayer synchroni
 - [x] Define a draft versioned message envelope.
 - [ ] Verify plugin loading on the target BeamMP Server build.
 - [ ] Verify client extension loading in BeamNG.drive.
-- [x] Implement the pure-Lua 20-slot competitor roster model and invariant tests.\n- [x] Implement the pure-Lua server match lifecycle manager and transition tests.\n- [ ] Connect the lifecycle manager to verified BeamMP events/commands and runtime tests.
+- [x] Implement the pure-Lua 20-slot competitor roster model and invariant tests.
+- [x] Implement the pure-Lua server match lifecycle manager and transition tests.
+- [ ] Connect the lifecycle manager to verified BeamMP events/commands and runtime tests.
 
 ### Phase 2 — Spawn selection
 - [ ] Create the in-game map UI.
