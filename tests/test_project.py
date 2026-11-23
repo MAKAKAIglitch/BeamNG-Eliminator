@@ -103,7 +103,7 @@ class ProjectStructureTests(unittest.TestCase):
 
     def test_lobby_ui_app_is_registered_and_complete(self):
         app_root = ROOT / "client-mod/ui/modules/apps/EliminatorLobby"
-        for filename in ("app.json", "app.js", "app.html", "app.css"):
+        for filename in ("app.json", "app.js", "app.html", "app.css", "app.png"):
             with self.subTest(filename=filename):
                 self.assertTrue((app_root / filename).is_file())
 
