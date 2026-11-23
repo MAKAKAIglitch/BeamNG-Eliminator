@@ -31,7 +31,7 @@ Included:
 - Initial match constants and example server configuration.
 - BeamMP server adapter for player join/disconnect, server-console commands and a 10-second countdown.
 - Versioned match snapshot/countdown broadcasts and a client-side event receiver.
-- Offline Python checks and pure-Lua roster, lifecycle and mocked adapter tests.
+- Offline Python checks, lobby UI state tests, a mocked Lua client-extension bridge test, and pure-Lua roster/lifecycle/server-adapter tests.
 - Local Windows and Linux packaging scripts.
 
 Not implemented yet:
