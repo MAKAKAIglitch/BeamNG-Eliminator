@@ -12,9 +12,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 class ProjectStructureTests(unittest.TestCase):
-    def test_required_directories_exist(self):
+    def test_required_paths_exist(self):
         for relative in (
             "server-plugin/modules",
+            "client-mod/scripts/modScript.lua",
+            "client-mod/lua/ge/extensions/eliminator.lua",
             "client-mod/lua/ge/extensions/eliminator",
             "shared/protocol",
             "shared/constants",
@@ -22,7 +24,7 @@ class ProjectStructureTests(unittest.TestCase):
             "tools",
         ):
             with self.subTest(path=relative):
-                self.assertTrue((ROOT / relative).is_dir())
+                self.assertTrue((ROOT / relative).exists())
 
     def test_json_files_are_valid(self):
         for relative in (
@@ -43,6 +45,12 @@ class ProjectStructureTests(unittest.TestCase):
     def test_server_root_has_single_lua_entrypoint(self):
         root_lua = list((ROOT / "server-plugin").glob("*.lua"))
         self.assertEqual([path.name for path in root_lua], ["main.lua"])
+
+    def test_client_modscript_loads_extension(self):
+        script = (ROOT / "client-mod/scripts/modScript.lua").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('load("eliminator")', script)
 
 
 if __name__ == "__main__":
