@@ -8,6 +8,10 @@ local extension_loaded = false
 local latest_snapshot = nil
 local countdown_seconds = nil
 
+local SNAPSHOT_REQUEST_EVENT = "eliminator:request_snapshot"
+local SNAPSHOT_REQUEST_DATA =
+    '{"type":"match.snapshot.request","version":1,"request_id":"lobby-ui","payload":{}}'
+
 local function publish_ui_update()
     if type(guihooks) == "table" and type(guihooks.trigger) == "function" then
         guihooks.trigger("EliminatorLobbyUpdate", {
@@ -66,8 +70,15 @@ local function onMatchCountdown(raw_data)
         "Match starts in " .. tostring(countdown_seconds) .. " seconds.")
 end
 
+local function request_server_snapshot()
+    if type(TriggerServerEvent) == "function" then
+        TriggerServerEvent(SNAPSHOT_REQUEST_EVENT, SNAPSHOT_REQUEST_DATA)
+    end
+end
+
 local function requestLobbySnapshot()
     publish_ui_update()
+    request_server_snapshot()
 end
 
 function M.onExtensionLoaded()
@@ -78,6 +89,7 @@ function M.onExtensionLoaded()
     end
     log("I", "BeamNGEliminator", "Client extension loaded.")
     publish_ui_update()
+    request_server_snapshot()
 end
 
 function M.onExtensionUnloaded()
