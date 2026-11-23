@@ -101,6 +101,29 @@ class ProjectStructureTests(unittest.TestCase):
         )
         self.assertIn('load("eliminator")', script)
 
+    def test_lobby_ui_app_is_registered_and_complete(self):
+        app_root = ROOT / "client-mod/ui/modules/apps/EliminatorLobby"
+        for filename in ("app.json", "app.js", "app.html", "app.css"):
+            with self.subTest(filename=filename):
+                self.assertTrue((app_root / filename).is_file())
+
+        app = load_json(app_root / "app.json")
+        script = (app_root / "app.js").read_text(encoding="utf-8")
+        markup = (app_root / "app.html").read_text(encoding="utf-8")
+        extension = (
+            ROOT / "client-mod/lua/ge/extensions/eliminator.lua"
+        ).read_text(encoding="utf-8")
+
+        self.assertEqual(app["directive"], "eliminatorLobby")
+        self.assertEqual(app["domElement"], "<eliminator-lobby></eliminator-lobby>")
+        self.assertIn(".directive('eliminatorLobby'", script)
+        self.assertIn("EliminatorLobbyUpdate", script)
+        self.assertIn("extensions.eliminator.requestLobbySnapshot()", script)
+        self.assertIn("guihooks.trigger(\"EliminatorLobbyUpdate\"", extension)
+        self.assertIn("ng-repeat=\"slot in slots", markup)
+        self.assertIn("ng-repeat=\"spectator in snapshot.spectators", markup)
+        self.assertIn("i <= 20", script)
+
 
 if __name__ == "__main__":
     unittest.main()
