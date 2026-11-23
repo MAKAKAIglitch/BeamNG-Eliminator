@@ -69,6 +69,30 @@ local function active_competitor_exists(competitor_id)
     return false
 end
 
+local function find_competitor_slot(competitor_id)
+    if not state.roster then
+        return nil
+    end
+    for _, slot in ipairs(state.roster.slots) do
+        if slot.competitor_id == competitor_id then
+            return slot
+        end
+    end
+    return nil
+end
+
+local function find_spectator(player_id)
+    if not state.roster then
+        return nil
+    end
+    for _, spectator in ipairs(state.roster.spectators) do
+        if spectator.player_id == player_id then
+            return spectator
+        end
+    end
+    return nil
+end
+
 function MatchManager.initialize(options)
     options = options or {}
     local requested_capacity = options.competitor_limit or RosterManager.CAPACITY
@@ -141,11 +165,46 @@ function MatchManager.add_player(player_id, display_name)
         return false, "invalid_player_id"
     end
 
+    if state.phase == PHASE.LOBBY or state.phase == PHASE.STARTING
+        or state.phase == PHASE.ACTIVE or state.phase == PHASE.FINAL_SHOWDOWN then
+        local existing_competitor = find_competitor_slot(competitor_id)
+        if existing_competitor then
+            if existing_competitor.kind ~= "human"
+                or existing_competitor.connection_status ~= "disconnected" then
+                return false, "duplicate_player"
+            end
+            existing_competitor.connection_status = "connected"
+            state.player_names[competitor_id] =
+                type(display_name) == "string" and display_name ~= ""
+                and display_name or state.player_names[competitor_id] or competitor_id
+            return true, {
+                role = "competitor",
+                slot = existing_competitor.slot,
+                competitor_id = competitor_id,
+                reconnected = true,
+                snapshot = MatchManager.snapshot()
+            }
+        end
+
+        local existing_spectator = find_spectator(competitor_id)
+        if existing_spectator then
+            existing_spectator.status = "spectating"
+            return true, {
+                role = "spectator",
+                competitor_id = competitor_id,
+                reconnected = true,
+                status = "spectating",
+                snapshot = MatchManager.snapshot()
+            }
+        end
+    end
+
     if state.phase == PHASE.LOBBY then
         local ok, slot_or_reason = RosterManager.add_human(state.roster, competitor_id)
         if not ok then
             return false, slot_or_reason
         end
+        state.roster.slots[slot_or_reason].connection_status = "connected"
         state.player_names[competitor_id] =
             type(display_name) == "string" and display_name ~= ""
             and display_name or competitor_id
@@ -174,10 +233,47 @@ function MatchManager.add_player(player_id, display_name)
     return false, "match_not_accepting_players"
 end
 
+function MatchManager.disconnect_player(player_id)
+    local competitor_id = normalize_player_id(player_id)
+    if not competitor_id or not state.roster then
+        return false, "player_not_in_match"
+    end
+
+    local competitor = find_competitor_slot(competitor_id)
+    if competitor and competitor.kind == "human"
+        and competitor.status == "active" then
+        competitor.connection_status = "disconnected"
+        return true, {
+            role = "competitor",
+            slot = competitor.slot,
+            competitor_id = competitor_id
+        }
+    end
+
+    local spectator = find_spectator(competitor_id)
+    if spectator then
+        spectator.status = "disconnected"
+        return true, {
+            role = "spectator",
+            competitor_id = competitor_id
+        }
+    end
+
+    return false, "player_not_in_match"
+end
+
 function MatchManager.lock_roster()
     local ok, reason = transition(PHASE.LOBBY, PHASE.STARTING)
     if not ok then
         return false, reason
+    end
+
+    for _, slot in ipairs(state.roster.slots) do
+        if slot.kind == "human" and slot.status == "active"
+            and slot.connection_status == "disconnected" then
+            state.phase = PHASE.LOBBY
+            return false, "human_disconnected"
+        end
     end
 
     if config.fill_open_slots_with_ai then
@@ -295,7 +391,8 @@ function MatchManager.snapshot()
                 competitor_id = slot.competitor_id,
                 display_name = slot.competitor_id
                     and state.player_names[slot.competitor_id] or nil,
-                elimination_reason = slot.elimination_reason
+                elimination_reason = slot.elimination_reason,
+                connection_status = slot.connection_status
             }
         end
         for _, spectator in ipairs(state.roster.spectators) do
