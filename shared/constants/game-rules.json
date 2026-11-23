@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "competitor_capacity": 20,
+  "vehicle_tier_count": 10,
+  "match_phases": [
+    "waiting",
+    "lobby",
+    "starting",
+    "active",
+    "final_showdown",
+    "finished",
+    "stopped"
+  ],
+  "notes": [
+    "These are initial project design constants, not verified game implementation.",
+    "The competitor capacity is the project's target and is not a claim about BeamMP's platform limit.",
+    "Vehicle tier definitions and progression rewards will be balanced in a later phase."
+  ]
+}
