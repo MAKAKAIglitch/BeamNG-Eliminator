@@ -6,7 +6,7 @@ BeamNG Eliminator is a planned multiplayer game mode inspired by the open-world 
 
 The project is intended to support **exactly 20 active competitors per match**, combining human players with AI-controlled opponents.
 
-> **Project status:** Early UI integration prototype. The repository contains the server-side roster/lifecycle core, BeamMP adapter and countdown, client snapshot receiver, and a native read-only lobby UI showing the 20 competitor slots. It is not yet a playable game mode: the UI/event bridge still needs an in-game smoke test, and player controls, spawn selection and vehicle gameplay remain unimplemented.
+> **Project status:** Early UI integration prototype. The repository contains the server-side roster/lifecycle core, BeamMP adapter and countdown, client snapshot receiver, and a native lobby UI showing the 20 competitor slots, server-validated Ready state and spawn-region preferences. It is not yet a playable game mode: the UI/event bridge still needs an in-game smoke test, and player controls, spawn selection and vehicle gameplay remain unimplemented.
 
 ## Core concept
 
@@ -35,7 +35,7 @@ Included:
 - Local Windows and Linux packaging scripts.
 
 Not implemented yet:
-- Player-facing lobby actions (Ready/Leave), spawn selection and map selection.
+- Lobby Leave action, map selection and conversion of spawn preferences into verified world coordinates.
 - Live BeamMP server smoke-test and two-client verification of UI delivery and event updates.
 - Synchronized AI vehicles or AI driving.
 - Vehicle drops, head-to-head races, arena contraction or final showdown.
@@ -155,7 +155,8 @@ These checks do not verify BeamMP runtime compatibility or multiplayer synchroni
 - [ ] Distribute AI spawn locations.
 - [x] Add a server-controlled 10-second countdown after roster lock.
 - [x] Add the read-only server countdown to the lobby UI.
-- [ ] Add player-ready checks and server-validated lobby actions.
+- [x] Add server-validated Ready toggle and spawn-region preference selection.
+- [ ] Add Leave action and verified map-specific spawn coordinates.
 
 ### Phase 3 — Vehicle drops
 - [ ] Create a vehicle catalogue and tier configuration.

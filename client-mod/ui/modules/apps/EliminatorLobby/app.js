@@ -83,6 +83,30 @@ angular.module('beamng.apps')
       $scope.spectatorCount = function () {
         return Array.isArray($scope.snapshot.spectators) ? $scope.snapshot.spectators.length : 0;
       };
+      $scope.localCompetitor = function () {
+        var id = $scope.snapshot.local_competitor_id;
+        if (!id) return null;
+        for (var i = 0; i < $scope.slots.length; i++) if ($scope.slots[i].competitor_id === id) return $scope.slots[i];
+        return null;
+      };
+      $scope.canEditLobby = function () {
+        var p = $scope.localCompetitor();
+        return $scope.snapshot.phase === 'lobby' && !!p && p.kind === 'human' && p.connection_status !== 'disconnected';
+      };
+      $scope.selectSpawnRegion = function (region) {
+        if (!/^(north|east|south|west)$/.test(region) || !$scope.canEditLobby()) return;
+        if (typeof bngApi !== 'undefined' && bngApi && typeof bngApi.engineLua === 'function')
+          bngApi.engineLua('extensions.eliminator.selectSpawnRegion("' + region + '")');
+      };
+      $scope.toggleReady = function () {
+        if (!$scope.canEditLobby()) return;
+        var ready = !( $scope.localCompetitor().ready === true);
+        if (typeof bngApi !== 'undefined' && bngApi && typeof bngApi.engineLua === 'function')
+          bngApi.engineLua('extensions.eliminator.setReady(' + (ready ? 'true' : 'false') + ')');
+      };
+      $scope.spawnRegionLabel = function (region) {
+        return ({ north: 'Север', east: 'Восток', south: 'Юг', west: 'Запад' })[region] || 'Не выбран';
+      };
 
       function applyUpdate(payload) {
         if (!payload || typeof payload !== 'object') return;

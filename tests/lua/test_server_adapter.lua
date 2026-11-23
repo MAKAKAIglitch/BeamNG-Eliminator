@@ -65,6 +65,8 @@ expect(registered.onPlayerDisconnect == "onEliminatorPlayerDisconnect",
     "player disconnect event should be registered")
 expect(registered["eliminator:request_snapshot"] == "onEliminatorSnapshotRequest",
     "client snapshot request event should be registered")
+expect(registered["eliminator:lobby_action"] == "onEliminatorLobbyAction",
+    "lobby action event should be registered")
 expect(registered.onConsoleInput == "onEliminatorConsoleInput",
     "console command event should be registered")
 expect(registered.onChatMessage == "onEliminatorChatMessage",
@@ -84,6 +86,7 @@ expect(sent_events[#sent_events].event_name == "eliminator:match_snapshot",
     "snapshot request must use the normal snapshot event")
 expect(sent_events[#sent_events].envelope.type == "match.snapshot",
     "snapshot request response must use the snapshot envelope")
+expect(sent_events[#sent_events].envelope.payload.local_competitor_id == "player:7")
 local snapshot_response_count = #sent_events
 onEliminatorSnapshotRequest(7,
     '{"type":"match.snapshot.request","version":1,"request_id":"lobby-ui","payload":{}}')
@@ -109,6 +112,18 @@ expect(type(sent_events[#sent_events].envelope.request_id) == "string",
 expect(#sent_events[#sent_events].envelope.payload.competitors == 20,
     "snapshot should expose all twenty roster slots")
 
+local function prepare_player(id, region)
+    onEliminatorLobbyAction(id, '{"type":"spawn.select","version":1,"request_id":"lobby-ui","payload":{"region":"' .. region .. '"}}')
+    onEliminatorLobbyAction(id, '{"type":"lobby.ready","version":1,"request_id":"lobby-ui","payload":{"ready":true}}')
+end
+local before_bad_actions = #sent_events
+onEliminatorLobbyAction(7, '{"type":"lobby.ready","version":1,"request_id":"lobby-ui","payload":{"ready":true}}')
+onEliminatorLobbyAction(7, '{"type":"spawn.select","version":1,"request_id":"lobby-ui","payload":{"region":"unknown"}}')
+expect(#sent_events == before_bad_actions, "invalid lobby actions must not broadcast")
+prepare_player(7, "north")
+prepare_player(8, "east")
+expect(sent_events[#sent_events].envelope.payload.competitors[1].ready == true)
+expect(sent_events[#sent_events].envelope.payload.competitors[1].spawn_region == "north")
 local status = onEliminatorConsoleInput("eliminator status")
 expect(type(status) == "string" and status:find("phase=lobby", 1, true),
     "console status should report lobby phase")
@@ -150,6 +165,7 @@ local new_lobby = onEliminatorConsoleInput("eliminator lobby")
 expect(type(new_lobby) == "string" and new_lobby:find("Lobby created", 1, true),
     "server should be able to create the next lobby")
 onEliminatorPlayerJoin(8)
+prepare_player(8, "west")
 local second_start = onEliminatorConsoleInput("eliminator start")
 expect(type(second_start) == "string" and second_start:find("countdown started", 1, true),
     "second lobby should start countdown")

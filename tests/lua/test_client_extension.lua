@@ -91,6 +91,13 @@ assert(ui_events[#ui_events].payload.countdown_seconds == 7)
 
 Extension.requestLobbySnapshot()
 assert(#server_events == 2, "opening the lobby should request a fresh server snapshot")
+Extension.selectSpawnRegion("north")
+assert(server_events[3].name == "eliminator:lobby_action")
+assert(server_events[3].data == '{"type":"spawn.select","version":1,"request_id":"lobby-ui","payload":{"region":"north"}}')
+Extension.setReady(true)
+assert(server_events[4].data == '{"type":"lobby.ready","version":1,"request_id":"lobby-ui","payload":{"ready":true}}')
+Extension.selectSpawnRegion("invalid")
+assert(#server_events == 4)
 assert(ui_events[#ui_events].payload.snapshot.phase == "lobby")
 assert(ui_events[#ui_events].payload.countdown_seconds == 7)
 

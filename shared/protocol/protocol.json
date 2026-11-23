@@ -1,6 +1,6 @@
 {
   "protocol_version": 1,
-  "description": "Version 1 server-to-client snapshots/countdowns and the validated client-to-server snapshot request are implemented; other listed message types remain reserved until their handlers are implemented and integration-tested.",
+  "description": "Version 1 snapshots/countdowns, targeted snapshot requests, validated lobby-ready actions and server-stored spawn-region preferences are implemented. Preferences are not world coordinates and do not spawn or teleport vehicles.",
   "envelope": {
     "type": "string",
     "version": "integer",
@@ -13,8 +13,9 @@
     "Untrusted client payloads must be validated before use.",
     "Server match snapshots use the match.snapshot envelope and are broadcast after roster and lifecycle changes.",
     "The countdown is informational; the server remains authoritative for the transition into the active phase.",
-    "Message types not listed as implemented in the architecture documentation remain reserved for future handlers.",
-    "Clients may request the current match snapshot; the server validates the request and replies only to the requesting player."
+    "Clients may request the current match snapshot; the server validates the request and replies only to the requesting player.",
+    "Ready is accepted only from a connected human competitor in an open lobby after selecting a valid spawn-region preference.",
+    "Spawn-region preferences are checked against a server-side allowlist; they do not represent world coordinates or cause teleportation."
   ],
   "message_types": [
     "client.hello",
@@ -27,6 +28,7 @@
     "race.progress",
     "match.result",
     "match.countdown",
-    "match.snapshot.request"
+    "match.snapshot.request",
+    "lobby.ready"
   ]
 }

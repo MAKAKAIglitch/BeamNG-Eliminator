@@ -36,6 +36,23 @@
     <span>сек.</span>
   </section>
 
+  <section class="el-player-controls" ng-if="localCompetitor()">
+    <div class="el-section-heading"><h3>Твои настройки лобби</h3>
+      <span class="el-ready-state" ng-class="localCompetitor().ready ? 'is-ready' : 'is-not-ready'">
+        {{ localCompetitor().ready ? 'Готов' : 'Не готов' }}</span>
+    </div>
+    <div class="el-spawn-heading">Предпочтительный сектор появления</div>
+    <div class="el-spawn-options">
+      <button type="button" ng-repeat="region in ['north', 'east', 'south', 'west']"
+        ng-click="selectSpawnRegion(region)" ng-disabled="!canEditLobby()"
+        ng-class="{ 'is-selected': localCompetitor().spawn_region === region }">{{ spawnRegionLabel(region) }}</button>
+    </div>
+    <div class="el-controls-note">Это предпочтение, а не точка телепортации. Координаты будут привязаны к карте отдельно.</div>
+    <button type="button" class="el-ready-button" ng-click="toggleReady()"
+      ng-disabled="!canEditLobby() || (!localCompetitor().spawn_region && !localCompetitor().ready)">
+      {{ localCompetitor().ready ? 'Снять готовность' : 'Готов' }}</button>
+  </section>
+
   <section class="el-roster">
     <div class="el-section-heading">
       <h3>Состав матча</h3>

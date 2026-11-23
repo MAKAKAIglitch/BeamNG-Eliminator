@@ -67,8 +67,12 @@ for (let slot = 1; slot <= 20; slot++) {
 
 handlers.EliminatorLobbyUpdate(null, {
   snapshot: {
-    phase: 'starting',
-    competitors,
+    phase: 'lobby',
+    local_competitor_id: 'player:1',
+    competitors: competitors.map(function (c) {
+      if (c.competitor_id === 'player:1') { c.spawn_region = 'north'; c.ready = false; }
+      return c;
+    }),
     active_competitors: 20,
     spectators: [{ player_id: 'player:21', status: 'spectating' }],
     roster_locked: true
@@ -83,7 +87,15 @@ assert.equal(scope.activeCount(), 20);
 assert.equal(scope.spectatorCount(), 1);
 assert.equal(scope.slots[1].connection_status, 'disconnected');
 assert.equal(scope.countdownSeconds, 5);
-assert.equal(scope.phaseLabel('starting'), 'Подготовка');
+assert.equal(scope.phaseLabel('lobby'), 'Лобби');
+assert.equal(scope.canEditLobby(), true);
+scope.selectSpawnRegion('east');
+assert.ok(luaCalls[luaCalls.length - 1].includes('selectSpawnRegion("east")'));
+scope.toggleReady();
+assert.ok(luaCalls[luaCalls.length - 1].includes('setReady(true)'));
+const beforeInvalid = luaCalls.length;
+scope.selectSpawnRegion('bad"); os.execute("bad');
+assert.equal(luaCalls.length, beforeInvalid);
 
 handlers.EliminatorLobbyUpdate(null, { countdown_seconds: 4 });
 assert.equal(scope.countdownSeconds, 4);
@@ -91,6 +103,7 @@ assert.equal(scope.countdownSeconds, 4);
 handlers.EliminatorLobbyUpdate(null, {
   snapshot: {
     phase: 'active',
+    local_competitor_id: 'player:1',
     competitors,
     active_competitors: 19,
     spectators: [],

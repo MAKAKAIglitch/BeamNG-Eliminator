@@ -77,3 +77,15 @@
   .el-slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .el-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+.el-player-controls { margin: 0 0 14px; padding: 11px; border: 1px solid rgba(108,169,255,.25); border-radius: 9px; background: rgba(108,169,255,.055); }
+.el-ready-state { padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 800; }
+.el-ready-state.is-ready { color: #8ce0b2; background: rgba(99,202,151,.12); }
+.el-ready-state.is-not-ready { color: #ffd17d; background: rgba(242,184,75,.1); }
+.el-spawn-heading { margin: 7px 0; color: #9ba8ba; font-size: 10px; }
+.el-spawn-options { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 6px; }
+.el-spawn-options button, .el-ready-button { min-width: 0; padding: 8px 6px; border: 1px solid rgba(255,255,255,.13); border-radius: 6px; color: #dce5f2; background: rgba(255,255,255,.055); font-size: 10px; font-weight: 700; cursor: pointer; }
+.el-spawn-options button.is-selected { border-color: rgba(108,169,255,.7); color: #a9ceff; background: rgba(108,169,255,.14); }
+.el-spawn-options button:disabled, .el-ready-button:disabled { opacity: .4; cursor: default; }
+.el-controls-note { margin-top: 7px; color: #8996aa; font-size: 9px; line-height: 1.4; }
+.el-ready-button { width: 100%; margin-top: 9px; border-color: rgba(99,202,151,.4); color: #9ce4ba; background: rgba(99,202,151,.1); }

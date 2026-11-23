@@ -9,6 +9,14 @@ local function expect(condition, message)
     end
 end
 
+local function ready_all_humans()
+    for _, c in ipairs(MatchManager.snapshot().competitors) do
+        if c.kind == "human" and c.status == "active" then
+            expect(MatchManager.select_spawn_region(c.competitor_id, "north"))
+            expect(MatchManager.set_player_ready(c.competitor_id, true))
+        end
+    end
+end
 local function test_full_lifecycle_and_late_join()
     local ok, reason = MatchManager.initialize({
         competitor_limit = 20,
@@ -30,6 +38,7 @@ local function test_full_lifecycle_and_late_join()
         expect(result.slot == index, "human should receive expected slot")
     end
 
+    ready_all_humans()
     local locked, lock_result = MatchManager.lock_roster()
     expect(locked, "roster lock failed: " .. tostring(lock_result))
     expect(lock_result.ai_added == 15, "five humans should create fifteen AI competitors")
@@ -115,12 +124,16 @@ local function test_transition_guards_and_invalid_config()
 
     local joined = MatchManager.add_player("player:a", "A")
     expect(joined, "first human should join")
+    local ready_without_region, ready_reason = MatchManager.set_player_ready("player:a", true)
+    expect(not ready_without_region and ready_reason == "spawn_region_required")
+    ready_all_humans()
     local still_short, still_short_reason = MatchManager.lock_roster()
     expect(not still_short and still_short_reason == "minimum_humans_not_met",
         "one human must not satisfy a two-human minimum")
 
     local second_joined = MatchManager.add_player("player:b", "B")
     expect(second_joined, "second human should join")
+    ready_all_humans()
     local locked = MatchManager.lock_roster()
     expect(locked, "lobby should lock after minimum humans join")
 
@@ -149,6 +162,7 @@ local function test_numeric_beammp_player_ids()
     expect(result.competitor_id == "player:42",
         "numeric player ID should be normalized to a match-scoped ID")
 
+    ready_all_humans()
     local locked, lock_result = MatchManager.lock_roster()
     expect(locked and lock_result.ai_added == 1,
         "numeric human player should count toward minimum and AI fill")
@@ -194,6 +208,7 @@ local function test_disconnect_and_same_id_reconnect()
     expect(MatchManager.snapshot().competitors[1].connection_status == "connected",
         "reconnect should restore connected status")
 
+    ready_all_humans()
     local locked = MatchManager.lock_roster()
     expect(locked, "lobby should lock after player reconnects")
 end
@@ -207,6 +222,7 @@ local function test_abort_countdown_reopens_lobby()
     MatchManager.create_lobby("match:test:abort")
     MatchManager.add_player(88, "Countdown Driver")
 
+    ready_all_humans()
     local locked, lock_result = MatchManager.lock_roster()
     expect(locked and lock_result.ai_added == 3,
         "countdown test should fill three AI slots")

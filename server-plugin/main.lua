@@ -10,6 +10,15 @@ local COUNTDOWN_EVENT = "eliminator:match_countdown"
 local SNAPSHOT_REQUEST_EVENT = "eliminator:request_snapshot"
 local SNAPSHOT_REQUEST_DATA =
     '{"type":"match.snapshot.request","version":1,"request_id":"lobby-ui","payload":{}}'
+local LOBBY_ACTION_EVENT = "eliminator:lobby_action"
+local LOBBY_ACTIONS = {
+    ['{"type":"lobby.ready","version":1,"request_id":"lobby-ui","payload":{"ready":true}}'] = { kind = "ready", value = true },
+    ['{"type":"lobby.ready","version":1,"request_id":"lobby-ui","payload":{"ready":false}}'] = { kind = "ready", value = false },
+    ['{"type":"spawn.select","version":1,"request_id":"lobby-ui","payload":{"region":"north"}}'] = { kind = "spawn", value = "north" },
+    ['{"type":"spawn.select","version":1,"request_id":"lobby-ui","payload":{"region":"east"}}'] = { kind = "spawn", value = "east" },
+    ['{"type":"spawn.select","version":1,"request_id":"lobby-ui","payload":{"region":"south"}}'] = { kind = "spawn", value = "south" },
+    ['{"type":"spawn.select","version":1,"request_id":"lobby-ui","payload":{"region":"west"}}'] = { kind = "spawn", value = "west" }
+}
 local COUNTDOWN_SECONDS = 10
 
 local match_sequence = 0
@@ -17,6 +26,7 @@ local countdown_remaining = nil
 local countdown_timer_running = false
 local event_sequence = 0
 local snapshot_request_last_at = {}
+local lobby_action_last_at = {}
 
 local function next_event_id()
     event_sequence = event_sequence + 1
@@ -101,6 +111,7 @@ local function has_disconnected_human(snapshot)
 end
 
 local function start_lobby()
+    lobby_action_last_at = {}
     match_sequence = match_sequence + 1
     local match_id = "match-" .. tostring(os.time()) .. "-" .. tostring(match_sequence)
     return MatchManager.create_lobby(match_id)
@@ -156,11 +167,13 @@ function onEliminatorSnapshotRequest(player_id, data)
         return
     end
 
+    local payload = MatchManager.snapshot()
+    payload.local_competitor_id = "player:" .. tostring(player_id)
     local envelope = {
         type = "match.snapshot",
         version = PROTOCOL_VERSION,
         request_id = next_event_id(),
-        payload = MatchManager.snapshot()
+        payload = payload
     }
     local ok, err = send_event(player_id, SNAPSHOT_EVENT, envelope)
     if not ok then
@@ -168,8 +181,31 @@ function onEliminatorSnapshotRequest(player_id, data)
     end
 end
 
+function onEliminatorLobbyAction(player_id, data)
+    if type(player_id) ~= "number" or player_id < 0 then return end
+    local action = LOBBY_ACTIONS[data]
+    if not action then return end
+    local key = tostring(player_id) .. ":" .. action.kind
+    local now = os.time()
+    if lobby_action_last_at[key] and now - lobby_action_last_at[key] < 1 then return end
+    local ok, result
+    if action.kind == "ready" then
+        ok, result = MatchManager.set_player_ready(player_id, action.value)
+    else
+        ok, result = MatchManager.select_spawn_region(player_id, action.value)
+    end
+    if not ok then
+        MP.SendChatMessage(player_id, "[Eliminator] Lobby action rejected: " .. tostring(result))
+        return
+    end
+    lobby_action_last_at[key] = now
+    broadcast_snapshot()
+end
+
 function onEliminatorPlayerDisconnect(player_id)
     snapshot_request_last_at[player_id] = nil
+    lobby_action_last_at[tostring(player_id) .. ":ready"] = nil
+    lobby_action_last_at[tostring(player_id) .. ":spawn"] = nil
     local ok, result = MatchManager.disconnect_player(player_id)
     if ok then
         print("[BeamNG Eliminator] Player disconnected from " .. result.role
@@ -306,6 +342,7 @@ function onInit()
     MP.RegisterEvent("onPlayerJoin", "onEliminatorPlayerJoin")
     MP.RegisterEvent("onPlayerDisconnect", "onEliminatorPlayerDisconnect")
     MP.RegisterEvent(SNAPSHOT_REQUEST_EVENT, "onEliminatorSnapshotRequest")
+    MP.RegisterEvent(LOBBY_ACTION_EVENT, "onEliminatorLobbyAction")
     MP.RegisterEvent("onConsoleInput", "onEliminatorConsoleInput")
     MP.RegisterEvent("onChatMessage", "onEliminatorChatMessage")
     MP.RegisterEvent("EliminatorCountdownTick", "onEliminatorCountdownTick")

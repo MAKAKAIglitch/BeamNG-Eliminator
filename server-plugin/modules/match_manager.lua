@@ -33,6 +33,7 @@ local config = {
     ai_id_prefix = "ai:"
 }
 
+local SPAWN_REGIONS = { north = true, east = true, south = true, west = true }
 local function valid_id(value)
     return type(value) == "string" and value ~= ""
 end
@@ -174,6 +175,8 @@ function MatchManager.add_player(player_id, display_name)
                 return false, "duplicate_player"
             end
             existing_competitor.connection_status = "connected"
+            existing_competitor.ready = false
+            existing_competitor.spawn_region = nil
             state.player_names[competitor_id] =
                 type(display_name) == "string" and display_name ~= ""
                 and display_name or state.player_names[competitor_id] or competitor_id
@@ -205,6 +208,8 @@ function MatchManager.add_player(player_id, display_name)
             return false, slot_or_reason
         end
         state.roster.slots[slot_or_reason].connection_status = "connected"
+        state.roster.slots[slot_or_reason].ready = false
+        state.roster.slots[slot_or_reason].spawn_region = nil
         state.player_names[competitor_id] =
             type(display_name) == "string" and display_name ~= ""
             and display_name or competitor_id
@@ -243,6 +248,7 @@ function MatchManager.disconnect_player(player_id)
     if competitor and competitor.kind == "human"
         and competitor.status == "active" then
         competitor.connection_status = "disconnected"
+        competitor.ready = false
         return true, {
             role = "competitor",
             slot = competitor.slot,
@@ -262,6 +268,30 @@ function MatchManager.disconnect_player(player_id)
     return false, "player_not_in_match"
 end
 
+function MatchManager.select_spawn_region(player_id, region)
+    local id = normalize_player_id(player_id)
+    if not id or type(region) ~= "string" or not SPAWN_REGIONS[region] then return false, "invalid_spawn_region" end
+    if state.phase ~= PHASE.LOBBY then return false, "lobby_not_open" end
+    local c = find_competitor_slot(id)
+    if not c or c.kind ~= "human" or c.status ~= "active" then return false, "human_competitor_required" end
+    if c.connection_status ~= "connected" then return false, "player_disconnected" end
+    c.spawn_region = region
+    c.ready = false
+    return true, { competitor_id = id, spawn_region = region }
+end
+
+function MatchManager.set_player_ready(player_id, ready)
+    local id = normalize_player_id(player_id)
+    if not id or type(ready) ~= "boolean" then return false, "invalid_ready_state" end
+    if state.phase ~= PHASE.LOBBY then return false, "lobby_not_open" end
+    local c = find_competitor_slot(id)
+    if not c or c.kind ~= "human" or c.status ~= "active" then return false, "human_competitor_required" end
+    if c.connection_status ~= "connected" then return false, "player_disconnected" end
+    if ready and not SPAWN_REGIONS[c.spawn_region] then return false, "spawn_region_required" end
+    c.ready = ready
+    return true, { competitor_id = id, ready = ready }
+end
+
 function MatchManager.lock_roster()
     local ok, reason = transition(PHASE.LOBBY, PHASE.STARTING)
     if not ok then
@@ -269,10 +299,15 @@ function MatchManager.lock_roster()
     end
 
     for _, slot in ipairs(state.roster.slots) do
-        if slot.kind == "human" and slot.status == "active"
-            and slot.connection_status == "disconnected" then
-            state.phase = PHASE.LOBBY
-            return false, "human_disconnected"
+        if slot.kind == "human" and slot.status == "active" then
+            if slot.connection_status == "disconnected" then
+                state.phase = PHASE.LOBBY
+                return false, "human_disconnected"
+            end
+            if slot.ready ~= true or not SPAWN_REGIONS[slot.spawn_region] then
+                state.phase = PHASE.LOBBY
+                return false, "players_not_ready"
+            end
         end
     end
 
@@ -415,7 +450,9 @@ function MatchManager.snapshot()
                 display_name = slot.competitor_id
                     and state.player_names[slot.competitor_id] or nil,
                 elimination_reason = slot.elimination_reason,
-                connection_status = slot.connection_status
+                connection_status = slot.connection_status,
+                ready = slot.kind == "human" and slot.ready == true or false,
+                spawn_region = slot.spawn_region
             }
         end
         for _, spectator in ipairs(state.roster.spectators) do
