@@ -1,6 +1,7 @@
 local registered_handlers = {}
 local ui_events = {}
 local log_messages = {}
+local server_events = {}
 
 function AddEventHandler(name, callback)
     registered_handlers[name] = callback
@@ -8,6 +9,13 @@ end
 
 function RemoveEventHandler(name)
     registered_handlers[name] = nil
+end
+
+function TriggerServerEvent(event_name, data)
+    server_events[#server_events + 1] = {
+        name = event_name,
+        data = data
+    }
 end
 
 function jsonDecode(raw_data)
@@ -65,6 +73,9 @@ local Extension = dofile("client-mod/lua/ge/extensions/eliminator.lua")
 assert(type(Extension) == "table")
 Extension.onExtensionLoaded()
 assert(Extension.isLoaded())
+assert(server_events[1].name == "eliminator:request_snapshot")
+assert(server_events[1].data ==
+    '{"type":"match.snapshot.request","version":1,"request_id":"lobby-ui","payload":{}}')
 assert(type(registered_handlers["eliminator:match_snapshot"]) == "function")
 assert(type(registered_handlers["eliminator:match_countdown"]) == "function")
 
@@ -79,6 +90,7 @@ assert(Extension.getCountdown() == 7)
 assert(ui_events[#ui_events].payload.countdown_seconds == 7)
 
 Extension.requestLobbySnapshot()
+assert(#server_events == 2, "opening the lobby should request a fresh server snapshot")
 assert(ui_events[#ui_events].payload.snapshot.phase == "lobby")
 assert(ui_events[#ui_events].payload.countdown_seconds == 7)
 
