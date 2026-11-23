@@ -157,6 +157,12 @@ Writes should be resilient to server shutdown: match events and completed result
 - Ready state and countdown.
 - Clear indication when the roster is locked.
 
+### Current lobby UI prototype
+
+The first native BeamNG lobby app is implemented as a read-only display. It shows the match phase, 20 competitor slots, human/AI/empty slot types, active/eliminated and connected/disconnected state, spectator count/list, roster lock state and the server countdown. The GE extension forwards validated server snapshots to the UI through a namespaced guihooks event.
+
+This prototype does not yet provide Ready/Leave controls, spawn selection, map selection or matchmaking actions. Those require server request handlers and validation before the UI can expose interactive controls. The app has not yet been smoke-tested in a live BeamNG/BeamMP session.
+
 ### In-match HUD
 - Remaining competitors (for example, 14/20).
 - Current vehicle tier.
@@ -187,7 +193,7 @@ The server-side lifecycle manager implements the core phase transitions. A basic
 3. Connect the documented BeamMP player lifecycle and console events; test with a mocked API and then a live server.
 4. Add a configurable reconnect grace period and a safe identity mapping strategy.
 5. Add a persistence adapter and server-derived match results.
-6. Build the main menu, lobby and results UI.
+6. Build the main menu, extend the read-only lobby into a server-validated interactive lobby, and add results UI.
 7. Add garage selection and the curated starter pool.
 8. Implement one synchronized AI competitor and verify it with two clients.
 9. Implement drops, duels, elimination and final showdown.
