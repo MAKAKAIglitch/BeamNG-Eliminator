@@ -101,6 +101,9 @@ class ProjectStructureTests(unittest.TestCase):
         )
         self.assertIn('load("eliminator")', script)
 
+    def test_lobby_ui_state_test_is_present(self):
+        self.assertTrue((ROOT / "tests/ui/test_lobby_app.js").is_file())
+
     def test_lobby_ui_app_is_registered_and_complete(self):
         app_root = ROOT / "client-mod/ui/modules/apps/EliminatorLobby"
         for filename in ("app.json", "app.js", "app.html", "app.css", "app.png"):
