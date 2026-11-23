@@ -20,7 +20,7 @@ The project is intended to support **exactly 20 active competitors per match**, 
 - The match progresses toward a final showdown.
 - One competitor wins the match.
 
-## Current release
+## Initial release baseline
 
 **[v0.1.0 — Architecture Foundation](docs/release/0.1.0.md)**
 
@@ -54,7 +54,7 @@ The target is 20 active competitor slots. Human players occupy available slots a
 | 15 | 5 | 20 |
 | 20 | 0 | 20 |
 
-**Roster invariant:** once the match starts, late joiners become spectators/queued players. They never displace an AI competitor. An AI leaves the active roster only after server-confirmed elimination or match termination. Disconnect takeover, if implemented, reuses the same competitor slot after a grace period; it does not delete unrelated bots.
+**Roster invariant:** once the match starts, late joiners become spectators/queued players. They never displace an AI competitor. An AI leaves the active roster only after server-confirmed elimination or match termination. Disconnect takeover is not implemented; if added later, it must reuse the same competitor slot and never delete unrelated bots.
 
 ### Intended match flow
 
