@@ -29,12 +29,14 @@ Included:
 - Minimal Lua entry points and subsystem boundaries.
 - Draft versioned network message envelope.
 - Initial match constants and example server configuration.
-- BeamMP server adapter for player join/disconnect, server-console commands and a 10-second countdown.\n- Versioned match snapshot/countdown broadcasts and a client-side event receiver.\n- Offline Python checks and pure-Lua roster, lifecycle and mocked adapter tests.
+- BeamMP server adapter for player join/disconnect, server-console commands and a 10-second countdown.
+- Versioned match snapshot/countdown broadcasts and a client-side event receiver.
+- Offline Python checks and pure-Lua roster, lifecycle and mocked adapter tests.
 - Local Windows and Linux packaging scripts.
 
 Not implemented yet:
-- Playable lobby or spawn selection.
-- BeamMP gameplay event handlers.
+- Playable in-game lobby UI or spawn selection.
+- Live BeamMP server smoke-test and two-client verification.
 - Synchronized AI vehicles or AI driving.
 - Vehicle drops, head-to-head races, arena contraction or final showdown.
 
@@ -140,7 +142,9 @@ These checks do not verify BeamMP runtime compatibility or multiplayer synchroni
 - [ ] Verify client extension loading in BeamNG.drive.
 - [x] Implement the pure-Lua 20-slot competitor roster model and invariant tests.
 - [x] Implement the pure-Lua server match lifecycle manager and transition tests.
-- [x] Connect the lifecycle manager to documented BeamMP events/console commands and add mocked adapter tests.\n- [x] Broadcast versioned match snapshots/countdown events and receive them in the client extension.\n- [ ] Verify plugin loading and event delivery on the target BeamMP Server build with two BeamNG clients.
+- [x] Connect the lifecycle manager to documented BeamMP events/console commands and add mocked adapter tests.
+- [x] Broadcast versioned match snapshots/countdown events and receive them in the client extension.
+- [ ] Verify plugin loading and event delivery on the target BeamMP Server build with two BeamNG clients.
 
 ### Phase 2 — Spawn selection
 - [ ] Create the in-game map UI.
