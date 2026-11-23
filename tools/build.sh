@@ -15,6 +15,12 @@ command -v zip >/dev/null 2>&1 || {
 
 python3 -m unittest discover -s tests -v
 
+if command -v node >/dev/null 2>&1; then
+  node --check client-mod/ui/modules/apps/EliminatorLobby/app.js
+else
+  echo "NOTE: Node.js not found; lobby UI JavaScript syntax check is skipped locally."
+fi
+
 if command -v lua5.3 >/dev/null 2>&1; then
   lua5.3 tests/lua/test_roster_manager.lua
   lua5.3 tests/lua/test_match_manager.lua
