@@ -1,0 +1,27 @@
+{
+  "protocol_version": 1,
+  "description": "Initial message envelope for BeamNG Eliminator. Message types are reserved until implemented and integration-tested.",
+  "envelope": {
+    "type": "string",
+    "version": "integer",
+    "request_id": "string|null",
+    "payload": "object"
+  },
+  "reserved_message_types": [
+    "client.hello",
+    "server.state",
+    "match.snapshot",
+    "spawn.select",
+    "drop.claim",
+    "duel.request",
+    "duel.response",
+    "race.progress",
+    "match.result"
+  ],
+  "rules": [
+    "The server validates all state-changing requests.",
+    "Clients must reject unsupported protocol versions.",
+    "Untrusted client payloads must be validated before use.",
+    "Reserved message names are not evidence that handlers already exist."
+  ]
+}
