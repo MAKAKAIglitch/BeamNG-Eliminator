@@ -98,7 +98,8 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the initial architectur
 - **`client-mod/`** — BeamNG extension loaded through `scripts/modScript.lua`, input, UI, world presentation and AI prototypes.
 - **`shared/`** — versioned network protocol and common game rules.
 - **`tests/`** — offline structural and configuration checks.
-- **`tools/`** — local packaging scripts; no scheduled GitHub Actions are required.
+- **`.github/workflows/ci.yml`** — push-to-main/manual CI: Lua 5.1 client syntax, Lua 5.3 server syntax, recursive JSON validation, protocol/config consistency and Python tests.
+- **`tools/`** — local packaging scripts; CI has no scheduled runs.
 
 The server owns official match outcomes. Client-side vehicle physics and AI synchronization are separate engineering challenges. The first AI milestone is one controlled AI vehicle observed consistently by two clients; scaling to 20 must wait until that is proven.
 
