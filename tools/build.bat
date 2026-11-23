@@ -15,6 +15,8 @@ where lua5.3 >nul 2>nul
 if not errorlevel 1 (
   lua5.3 tests\lua\test_roster_manager.lua
   if errorlevel 1 exit /b 1
+  lua5.3 tests\lua\test_match_manager.lua
+  if errorlevel 1 exit /b 1
 ) else (
   echo NOTE: lua5.3 not found; Lua roster tests are skipped locally.
 )
