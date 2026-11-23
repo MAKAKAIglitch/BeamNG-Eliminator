@@ -58,12 +58,27 @@ expect(registered.onPlayerJoin == "onEliminatorPlayerJoin",
     "player join event should be registered")
 expect(registered.onPlayerDisconnect == "onEliminatorPlayerDisconnect",
     "player disconnect event should be registered")
+expect(registered["eliminator:request_snapshot"] == "onEliminatorSnapshotRequest",
+    "client snapshot request event should be registered")
 expect(registered.onConsoleInput == "onEliminatorConsoleInput",
     "console command event should be registered")
 expect(registered.onChatMessage == "onEliminatorChatMessage",
     "chat status command event should be registered")
 expect(registered.EliminatorCountdownTick == "onEliminatorCountdownTick",
     "countdown timer event should be registered")
+
+local before_invalid_snapshot_request = #sent_events
+onEliminatorSnapshotRequest(7, "not-a-valid-request")
+expect(#sent_events == before_invalid_snapshot_request,
+    "invalid snapshot request payload must be ignored")
+onEliminatorSnapshotRequest(7,
+    '{"type":"match.snapshot.request","version":1,"request_id":"lobby-ui","payload":{}}')
+expect(sent_events[#sent_events].player_id == 7,
+    "snapshot request must reply only to the requesting player")
+expect(sent_events[#sent_events].event_name == "eliminator:match_snapshot",
+    "snapshot request must use the normal snapshot event")
+expect(sent_events[#sent_events].envelope.type == "match.snapshot",
+    "snapshot request response must use the snapshot envelope")
 
 onEliminatorPlayerJoin(7)
 onEliminatorPlayerJoin(8)
