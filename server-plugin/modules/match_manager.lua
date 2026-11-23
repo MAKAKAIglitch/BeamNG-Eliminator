@@ -37,6 +37,18 @@ local function valid_id(value)
     return type(value) == "string" and value ~= ""
 end
 
+-- BeamMP runtime player IDs are numeric. Convert them to an internal,
+-- match-scoped string ID before passing them to the roster model.
+local function normalize_player_id(value)
+    if type(value) == "number" and value >= 0 and value % 1 == 0 then
+        return "player:" .. tostring(value)
+    end
+    if valid_id(value) then
+        return value
+    end
+    return nil
+end
+
 local function transition(expected_phase, next_phase)
     if state.phase ~= expected_phase then
         return false, "invalid_phase:" .. state.phase
@@ -124,27 +136,36 @@ function MatchManager.create_lobby(match_id)
 end
 
 function MatchManager.add_player(player_id, display_name)
+    local competitor_id = normalize_player_id(player_id)
+    if not competitor_id then
+        return false, "invalid_player_id"
+    end
+
     if state.phase == PHASE.LOBBY then
-        local ok, slot_or_reason = RosterManager.add_human(state.roster, player_id)
+        local ok, slot_or_reason = RosterManager.add_human(state.roster, competitor_id)
         if not ok then
             return false, slot_or_reason
         end
-        state.player_names[player_id] = display_name or player_id
+        state.player_names[competitor_id] =
+            type(display_name) == "string" and display_name ~= ""
+            and display_name or competitor_id
         return true, {
             role = "competitor",
             slot = slot_or_reason,
+            competitor_id = competitor_id,
             snapshot = MatchManager.snapshot()
         }
     end
 
     if state.phase == PHASE.STARTING or state.phase == PHASE.ACTIVE
         or state.phase == PHASE.FINAL_SHOWDOWN then
-        local ok, result = RosterManager.add_late_joiner(state.roster, player_id)
+        local ok, result = RosterManager.add_late_joiner(state.roster, competitor_id)
         if not ok then
             return false, result
         end
         return true, {
             role = "spectator",
+            competitor_id = competitor_id,
             status = result,
             snapshot = MatchManager.snapshot()
         }
