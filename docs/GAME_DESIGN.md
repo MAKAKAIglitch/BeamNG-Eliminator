@@ -59,7 +59,7 @@ Example: a match starts with 5 humans and 15 AI. If 3 more players connect after
 
 ### Disconnect handling
 
-A human disconnect does not free the slot immediately. The current prototype marks the competitor disconnected and retains the slot; during the lobby, the match cannot start until the same runtime player ID reconnects. A timed grace period, reconnect matching across changed runtime IDs and AI takeover are not implemented yet. Future AI takeover must transfer control of that same competitor slot and must not affect any other bot slot.
+A human disconnect does not free the slot immediately. The current prototype marks the competitor disconnected and retains the slot; during the lobby, the match cannot start until the same runtime player ID reconnects. If a disconnect occurs during the 10-second countdown, the server cancels the countdown, removes only the generated AI placeholders and reopens the lobby. A timed grace period, reconnect matching across changed runtime IDs and AI takeover are not implemented yet. Future AI takeover must transfer control of that same competitor slot and must not affect any other bot slot.
 
 AI takeover is a separate feature and must be implemented only after reconnect identity and vehicle-control synchronization are proven. If takeover is not available, the disconnected competitor is marked as abandoned and processed by an explicit match rule; other AI competitors remain untouched.
 
