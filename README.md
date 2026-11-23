@@ -29,7 +29,7 @@ Included:
 - Minimal Lua entry points and subsystem boundaries.
 - Draft versioned network message envelope.
 - Initial match constants and example server configuration.
-- Offline Python structural/configuration tests.
+- Offline Python structural/configuration tests and pure-Lua competitor-roster tests.
 - Local Windows and Linux packaging scripts.
 
 Not implemented yet:
@@ -97,8 +97,8 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the initial architectur
 - **`server-plugin/`** — authoritative match state, competitor roster and validation.
 - **`client-mod/`** — BeamNG extension loaded through `scripts/modScript.lua`, input, UI, world presentation and AI prototypes.
 - **`shared/`** — versioned network protocol and common game rules.
-- **`tests/`** — offline structural and configuration checks.
-- **`.github/workflows/ci.yml`** — push-to-main/manual CI: Lua 5.1 client syntax, Lua 5.3 server syntax, recursive JSON validation, protocol/config consistency and Python tests.
+- **`tests/`** — Python structural/configuration checks and Lua tests for stable roster behavior (20 slots, late joins, AI retention and elimination).
+- **`.github/workflows/ci.yml`** — push-to-main/manual CI: Lua 5.1 client syntax, Lua 5.3 server syntax, recursive JSON validation, protocol/config consistency, Lua roster behavior tests and Python tests.
 - **`tools/`** — local packaging scripts; CI has no scheduled runs.
 
 The server owns official match outcomes. Client-side vehicle physics and AI synchronization are separate engineering challenges. The first AI milestone is one controlled AI vehicle observed consistently by two clients; scaling to 20 must wait until that is proven.
