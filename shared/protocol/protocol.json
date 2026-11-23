@@ -1,6 +1,6 @@
 {
   "protocol_version": 1,
-  "description": "Version 1 server-to-client match snapshots and countdown events are implemented; other listed message types remain reserved until their handlers are implemented and integration-tested.",
+  "description": "Version 1 server-to-client snapshots/countdowns and the validated client-to-server snapshot request are implemented; other listed message types remain reserved until their handlers are implemented and integration-tested.",
   "envelope": {
     "type": "string",
     "version": "integer",
@@ -13,7 +13,8 @@
     "Untrusted client payloads must be validated before use.",
     "Server match snapshots use the match.snapshot envelope and are broadcast after roster and lifecycle changes.",
     "The countdown is informational; the server remains authoritative for the transition into the active phase.",
-    "Message types not listed as implemented in the architecture documentation remain reserved for future handlers."
+    "Message types not listed as implemented in the architecture documentation remain reserved for future handlers.",
+    "Clients may request the current match snapshot; the server validates the request and replies only to the requesting player."
   ],
   "message_types": [
     "client.hello",
@@ -25,6 +26,7 @@
     "duel.response",
     "race.progress",
     "match.result",
-    "match.countdown"
+    "match.countdown",
+    "match.snapshot.request"
   ]
 }
