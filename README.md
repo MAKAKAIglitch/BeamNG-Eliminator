@@ -25,7 +25,7 @@ The project is intended to support **exactly 20 active competitors per match**, 
 **[v0.1.0 — Architecture Foundation](docs/release/0.1.0.md)**
 
 Included:
-- Initial `server-plugin/`, `client-mod/` and `shared/` structure.
+- Initial `server-plugin/`, `client-mod/` and `shared/` structure, including BeamNG's `scripts/modScript.lua` loader.
 - Minimal Lua entry points and subsystem boundaries.
 - Draft versioned network message envelope.
 - Initial match constants and example server configuration.
@@ -91,7 +91,7 @@ The actual vehicle list, configurations, balancing, and tier progression will be
 See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the initial architecture and AI synchronization milestone.
 
 - **`server-plugin/`** — authoritative match state, competitor roster and validation.
-- **`client-mod/`** — BeamNG extension, input, UI, world presentation and AI prototypes.
+- **`client-mod/`** — BeamNG extension loaded through `scripts/modScript.lua`, input, UI, world presentation and AI prototypes.
 - **`shared/`** — versioned network protocol and common game rules.
 - **`tests/`** — offline structural and configuration checks.
 - **`tools/`** — local packaging scripts; no scheduled GitHub Actions are required.
