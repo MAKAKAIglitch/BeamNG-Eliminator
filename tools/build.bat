@@ -21,6 +21,14 @@ if not errorlevel 1 (
   echo NOTE: Node.js not found; lobby UI JavaScript syntax check is skipped locally.
 )
 
+where lua5.1 >nul 2>nul
+if not errorlevel 1 (
+  lua5.1 tests\lua\test_client_extension.lua
+  if errorlevel 1 exit /b 1
+) else (
+  echo NOTE: lua5.1 not found; client extension bridge test is skipped locally.
+)
+
 where lua5.3 >nul 2>nul
 if not errorlevel 1 (
   lua5.3 tests\lua\test_roster_manager.lua
