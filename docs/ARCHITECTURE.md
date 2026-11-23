@@ -8,7 +8,7 @@
 | `client-mod/` | BeamNG.drive Lua/UI | Input, presentation, vehicle and AI prototypes |
 | `client-mod/ui/modules/apps/EliminatorLobby/` | BeamNG AngularJS UI app | Read-only 20-slot lobby presentation |
 | `shared/` | Source/configuration | Versioned protocol and common rules |
-| `tests/` | Python 3, Lua 5.3 and Node.js | Offline structural/configuration checks, lobby UI contract checks, JavaScript syntax, pure-Lua logic tests and mocked BeamMP adapter tests |
+| `tests/` | Python 3, Lua 5.1/5.3 and Node.js | Offline structural/configuration checks, lobby UI contract/state checks, client-extension bridge tests, pure-Lua logic tests and mocked BeamMP adapter tests |
 
 ## Loading and packaging
 
@@ -16,7 +16,7 @@
 - BeamMP client resource: one ZIP in `Resources/Client/`.
 - Client ZIP entry script: `scripts/modScript.lua`, which loads the GE extension `eliminator`.
 - GE extension entry point: `lua/ge/extensions/eliminator.lua`.
-- Native lobby app: `ui/modules/apps/EliminatorLobby/` (`app.json`, `app.js`, `app.html`, `app.css`).
+- Native lobby app: `ui/modules/apps/EliminatorLobby/` (`app.json`, `app.js`, `app.html`, `app.css`, `app.png`).
 
 The server plugin uses BeamMP `onInit`/`onShutdown` lifecycle hooks and registers `onPlayerJoin`, `onPlayerDisconnect`, `onConsoleInput` and `onChatMessage`. Its internal Lua modules remain in a subdirectory and are loaded explicitly.
 
