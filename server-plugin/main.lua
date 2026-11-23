@@ -77,6 +77,17 @@ local function send_countdown(remaining)
     return ok
 end
 
+local function has_disconnected_human(snapshot)
+    for _, competitor in ipairs(snapshot.competitors) do
+        if competitor.kind == "human"
+            and competitor.status == "active"
+            and competitor.connection_status == "disconnected" then
+            return true
+        end
+    end
+    return false
+end
+
 local function start_lobby()
     match_sequence = match_sequence + 1
     local match_id = "match-" .. tostring(os.time()) .. "-" .. tostring(match_sequence)
@@ -132,8 +143,24 @@ function onEliminatorCountdownTick()
         return
     end
 
-    if MatchManager.snapshot().phase ~= MatchManager.PHASE.STARTING then
+    local snapshot = MatchManager.snapshot()
+    if snapshot.phase ~= MatchManager.PHASE.STARTING then
         cancel_countdown()
+        return
+    end
+
+    if has_disconnected_human(snapshot) then
+        cancel_countdown()
+        local aborted, abort_result =
+            MatchManager.abort_starting("human_disconnected_during_countdown")
+        if aborted then
+            broadcast_snapshot()
+            MP.SendChatMessage(-1,
+                "[Eliminator] Countdown cancelled: a competitor disconnected. Reconnect and start again.")
+            print("[BeamNG Eliminator] Countdown aborted because a human competitor disconnected.")
+        else
+            print("[BeamNG Eliminator] Could not abort countdown: " .. tostring(abort_result))
+        end
         return
     end
 
