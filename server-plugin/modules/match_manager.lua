@@ -310,6 +310,29 @@ function MatchManager.lock_roster()
     }
 end
 
+function MatchManager.abort_starting(reason)
+    if state.phase ~= PHASE.STARTING or not state.roster then
+        return false, "countdown_not_active"
+    end
+
+    -- A pre-match abort may reopen the lobby and clear only generated AI
+    -- placeholders. Human identities and spectator records are preserved.
+    for _, slot in ipairs(state.roster.slots) do
+        if slot.kind == "ai" then
+            slot.kind = "empty"
+            slot.status = "vacant"
+            slot.competitor_id = nil
+            slot.elimination_reason = nil
+            slot.connection_status = nil
+        end
+    end
+
+    state.roster.locked = false
+    state.phase = PHASE.LOBBY
+    state.stop_reason = reason or "countdown_aborted"
+    return true, MatchManager.snapshot()
+end
+
 function MatchManager.start_match()
     return transition(PHASE.STARTING, PHASE.ACTIVE)
 end
