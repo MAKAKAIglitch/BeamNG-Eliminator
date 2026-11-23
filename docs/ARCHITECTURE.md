@@ -59,6 +59,24 @@ lua5.3 tests/lua/test_roster_manager.lua
 
 The CI workflow runs this test after installing Lua 5.3. Python tests check repository structure, JSON validity and protocol/configuration consistency. These are offline logic checks, not a real BeamMP server integration test.
 
+## Match lifecycle manager
+
+`server-plugin/modules/match_manager.lua` now coordinates the server-side lifecycle and composes the roster model.
+
+Implemented transitions and operations:
+- `waiting → lobby`: create a match with a unique match ID.
+- Lobby joins claim human slots; the lobby rejects joins after its capacity is reached.
+- `lobby → starting`: lock the roster, enforce the configured minimum human count, and optionally fill vacant slots with AI identities.
+- `starting → active`: begin the match after the external countdown/ready gate.
+- `active → final_showdown`: enter the final race phase when the game rules decide it is time.
+- `active/final_showdown`: process a single validated elimination without changing unrelated slots.
+- `final_showdown → finished`: accept a winner only if that competitor is still active.
+- Running phases can be stopped with a recorded reason; a new lobby can then be created.
+
+The module returns snapshots rather than exposing its internal roster tables. Late joins in starting, active or final-showdown phases are spectators. The module currently exposes functions for a future event/command adapter; it does not yet register BeamMP player events, create a timer, send protocol messages, or persist results. Those integrations require their own tested steps.
+
+Pure-Lua lifecycle tests live in `tests/lua/test_match_manager.lua` and are included in CI and local build checks when Lua 5.3 is available.
+
 ## Stable competitor slots
 
 The match roster is a server-owned set of 20 stable competitor identities. Slot assignment is locked before the countdown. A late player join is a spectator/queue event, never a reason to remove or despawn an AI competitor. AI removal is allowed only after a validated elimination or match termination.
