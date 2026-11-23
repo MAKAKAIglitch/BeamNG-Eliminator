@@ -58,7 +58,7 @@ class ProjectStructureTests(unittest.TestCase):
         self.assertEqual(protocol["envelope"]["version"], "integer")
         self.assertEqual(protocol["envelope"]["payload"], "object")
 
-        message_types = protocol["reserved_message_types"]
+        message_types = protocol["message_types"]
         self.assertTrue(message_types)
         self.assertEqual(len(message_types), len(set(message_types)))
         self.assertTrue(all(isinstance(item, str) and item for item in message_types))
