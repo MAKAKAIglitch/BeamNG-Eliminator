@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lua, JSON, protocol and Python checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Install Lua syntax checkers
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends lua5.1 lua5.3
+
+      - name: Check client Lua syntax (Lua 5.1)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' files < <(find client-mod -type f -name '*.lua' -print0)
+          if (("${#files[@]}" == 0)); then
+            echo "No client Lua files found."
+            exit 1
+          fi
+          for file in "${files[@]}"; do
+            echo "Checking ${file}"
+            luac5.1 -p "${file}"
+          done
+
+      - name: Check server Lua syntax (Lua 5.3)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' files < <(find server-plugin -type f -name '*.lua' -print0)
+          if (("${#files[@]}" == 0)); then
+            echo "No server Lua files found."
+            exit 1
+          fi
+          for file in "${files[@]}"; do
+            echo "Checking ${file}"
+            luac5.3 -p "${file}"
+          done
+
+      - name: Validate JSON configs and protocol
+        run: python -m unittest tests.test_project.ProjectStructureTests.test_json_files_are_valid tests.test_project.ProjectStructureTests.test_protocol_contract_matches_config -v
+
+      - name: Run Python test suite
+        run: python -m unittest discover -s tests -v
