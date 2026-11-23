@@ -6,7 +6,7 @@ BeamNG Eliminator is a planned multiplayer game mode inspired by the open-world 
 
 The project is intended to support **exactly 20 active competitors per match**, combining human players with AI-controlled opponents.
 
-> **Project status:** Architecture foundation (v0.1.0). The repository now contains an initial server/client scaffold and offline checks, but it is not a playable game mode. Gameplay features listed below remain planned unless explicitly marked otherwise.
+> **Project status:** Architecture foundation (v0.1.0). The repository now contains a pure-Lua roster model and server match lifecycle core with offline tests, but it is not a playable game mode. Gameplay features listed below remain planned unless explicitly marked otherwise.
 
 ## Core concept
 
@@ -29,7 +29,7 @@ Included:
 - Minimal Lua entry points and subsystem boundaries.
 - Draft versioned network message envelope.
 - Initial match constants and example server configuration.
-- Offline Python structural/configuration tests and pure-Lua competitor-roster tests.
+- Offline Python structural/configuration tests plus pure-Lua roster and match-lifecycle tests.
 - Local Windows and Linux packaging scripts.
 
 Not implemented yet:
@@ -98,7 +98,7 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the initial architectur
 - **`client-mod/`** — BeamNG extension loaded through `scripts/modScript.lua`, input, UI, world presentation and AI prototypes.
 - **`shared/`** — versioned network protocol and common game rules.
 - **`tests/`** — Python structural/configuration checks and Lua tests for stable roster behavior (20 slots, late joins, AI retention and elimination).
-- **`.github/workflows/ci.yml`** — push-to-main/manual CI: Lua 5.1 client syntax, Lua 5.3 server syntax, recursive JSON validation, protocol/config consistency, Lua roster behavior tests and Python tests.
+- **`.github/workflows/ci.yml`** — push-to-main/manual CI: Lua 5.1 client syntax, Lua 5.3 server syntax, recursive JSON validation, protocol/config consistency, Lua roster and match-lifecycle tests plus Python tests.
 - **`tools/`** — local packaging scripts; CI has no scheduled runs.
 
 The server owns official match outcomes. Client-side vehicle physics and AI synchronization are separate engineering challenges. The first AI milestone is one controlled AI vehicle observed consistently by two clients; scaling to 20 must wait until that is proven.
@@ -124,7 +124,7 @@ chmod +x tools/build.sh
 ./tools/build.sh
 ```
 
-The scripts run Python checks and, when Lua 5.3 is installed, the competitor-roster Lua tests. They then create:
+The scripts run Python checks and, when Lua 5.3 is installed, the competitor-roster and match-lifecycle Lua tests. They then create:
 - `dist/Resources/Server/Eliminator/` — server plugin files.
 - `dist/Eliminator-client.zip` — client mod package.
 
@@ -138,7 +138,7 @@ These checks do not verify BeamMP runtime compatibility or multiplayer synchroni
 - [x] Define a draft versioned message envelope.
 - [ ] Verify plugin loading on the target BeamMP Server build.
 - [ ] Verify client extension loading in BeamNG.drive.
-- [ ] Implement match lifecycle and the 20-slot competitor manager.
+- [x] Implement the pure-Lua 20-slot competitor roster model and invariant tests.\n- [x] Implement the pure-Lua server match lifecycle manager and transition tests.\n- [ ] Connect the lifecycle manager to verified BeamMP events/commands and runtime tests.
 
 ### Phase 2 — Spawn selection
 - [ ] Create the in-game map UI.
