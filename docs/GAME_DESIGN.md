@@ -59,7 +59,7 @@ Example: a match starts with 5 humans and 15 AI. If 3 more players connect after
 
 ### Disconnect handling
 
-A human disconnect does not free the slot immediately. The server marks the competitor disconnected and starts a configurable reconnection grace period. If reconnection succeeds, the same competitor identity resumes. If it expires, the match may transfer control of that same competitor slot to an AI takeover controller. This is not a new competitor and must not affect any other bot slot.
+A human disconnect does not free the slot immediately. The current prototype marks the competitor disconnected and retains the slot; during the lobby, the match cannot start until the same runtime player ID reconnects. A timed grace period, reconnect matching across changed runtime IDs and AI takeover are not implemented yet. Future AI takeover must transfer control of that same competitor slot and must not affect any other bot slot.
 
 AI takeover is a separate feature and must be implemented only after reconnect identity and vehicle-control synchronization are proven. If takeover is not available, the disconnected competitor is marked as abandoned and processed by an explicit match rule; other AI competitors remain untouched.
 
@@ -178,20 +178,21 @@ Recommended state machine:
 
 `WAITING → LOBBY → STARTING (roster locked/countdown) → ACTIVE → FINAL_SHOWDOWN → FINISHED`
 
-The initial server-side lifecycle manager implements the core phase transitions above. Queue/matchmaking, countdown timing, result persistence and client notifications remain integration work. The server must validate every transition. Repeated, stale or out-of-order client requests must be rejected safely.
+The server-side lifecycle manager implements the core phase transitions. A basic 10-second countdown can be started from the BeamMP server console; server snapshots and countdown events are sent to the client extension. Queue/matchmaking, player-facing lobby controls, spawn selection, result persistence and a live two-client runtime verification remain integration work. The server must validate every transition. Repeated, stale or out-of-order client requests must be rejected safely.
 
 ## 8. Implementation order
 
 1. Formalize competitor IDs, slot states and roster invariants.
 2. Implement server-side match lifecycle and late-join spectator behavior.
-3. Add a test harness for joins during lobby, countdown and active match.
-4. Add a persistence adapter and server-derived match results.
-5. Build the main menu, lobby and results UI.
-6. Add garage selection and the curated starter pool.
-7. Implement one synchronized AI competitor and verify it with two clients.
-8. Implement drops, duels, elimination and final showdown.
-9. Add full career statistics and match history views.
-10. Scale AI and performance tests progressively toward 20 competitors.
+3. Connect the documented BeamMP player lifecycle and console events; test with a mocked API and then a live server.
+4. Add a configurable reconnect grace period and a safe identity mapping strategy.
+5. Add a persistence adapter and server-derived match results.
+6. Build the main menu, lobby and results UI.
+7. Add garage selection and the curated starter pool.
+8. Implement one synchronized AI competitor and verify it with two clients.
+9. Implement drops, duels, elimination and final showdown.
+10. Add full career statistics and match history views.
+11. Scale AI and performance tests progressively toward 20 competitors.
 
 ## 9. Acceptance tests for the bot-retention rule
 
@@ -200,7 +201,7 @@ The following must pass before the mode is considered safe for public matches:
 - Start with 5 humans and 15 AI; connect another human during the active match; all 15 AI competitor IDs remain present.
 - Connect multiple humans during an active match; no AI slot or AI vehicle is removed because of those joins.
 - Eliminate one AI; exactly that AI is marked eliminated; the other 14 remain.
-- Disconnect and reconnect a human during the grace period; the same competitor ID and slot are restored.
+- Disconnect and reconnect a human with the same runtime ID; the same competitor slot is restored. After a timed grace period is implemented, also test reconnects that receive a different runtime ID.
 - A late joiner is shown as spectator/queued, not inserted into the active roster.
 - Duplicate elimination or join events do not create duplicate slot transitions.
 - Match results and statistics agree with the server event log.
