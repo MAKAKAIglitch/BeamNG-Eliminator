@@ -17,8 +17,10 @@ if not errorlevel 1 (
   if errorlevel 1 exit /b 1
   lua5.3 tests\lua\test_match_manager.lua
   if errorlevel 1 exit /b 1
+  lua5.3 tests\lua\test_server_adapter.lua
+  if errorlevel 1 exit /b 1
 ) else (
-  echo NOTE: lua5.3 not found; Lua roster tests are skipped locally.
+  echo NOTE: lua5.3 not found; Lua logic tests are skipped locally.
 )
 
 if exist dist rmdir /s /q dist
